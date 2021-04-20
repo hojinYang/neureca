@@ -1,0 +1,202 @@
+attribute:
+- attr: ambiance
+  syn: [ambiance, ambience, ambient, atmosphere, styling, dcor, decorations, decors, decor, deco]
+
+- attr: parking
+  syn: [parking, parking lot, p lot, street parking]
+
+- attr: takeout
+  syn: [takeout, takeouts, take out, delivery, uber]
+  
+- attr: occasion
+  sub-attr:
+  - attr: breakfast
+    syn: [breakfast, breakfasts]
+  - attr: lunch
+    syn: [lunch, lunches]
+  - attr: brunch
+    syn: [brunch, breakfastbrunch, breakfastlunch, brunchbreakfast, brunchlunch]
+  - attr: group
+    syn: [group lunch, group gathering, group table, grouptable, group tables, grouptables, group dining]
+  - attr: date
+    syn: [date, dates]
+  - attr: family
+    syn: [family dinners, family dinner, familyrestaurants, family restaurants, family dinners]
+  - attr: dinner
+    syn: [dinner, dinners]
+  - attr: quick bite
+    syn: [quickbite, quick bite, quickbites]
+
+- attr: wifi
+  syn: [wi fi, wifi, wi-fi]
+
+- attr: patio
+  syn: [patio, patios]
+
+- attr: food-type
+  sub-attr:
+  - attr: burger
+    syn: [burger, burgers, hamburger, hambergers]
+  - attr: sandwich
+    syn: [sandwich]
+  - attr: cafe
+    syn: [cafe, cafes, cafeteria, cafeteriastyle, coffee]
+  - attr: streetfood
+    syn: [streetfood, streetfoods]
+  - attr: country
+    syn: [country kitchen, country style]
+  - attr: korean
+    syn: [korean]
+  - attr: chinese
+    syn: [chinese]
+  - attr: diner
+    syn: [diner, dinerstyle, diners]
+  - attr: italian
+    syn: [italian]
+  - attr: pizza
+    syn: [pizza]
+  - attr: hk
+    syn: [hk, hkstyle]
+  - attr: japanese
+    syn: [japanese]
+  - attr: seafood
+    syn: [seafood]
+  - attr: vietnamese
+    syn: [viet, vietnamese]
+  - attr: steaks
+    syn: [steaks, steakhouse]
+  - attr: donut
+    syn: [donut, dounts, doughnut, doughnuts]
+  - attr: mexican
+    syn: [mexican]
+  - attr: mediterranean
+    syn: [mediterranean]
+  - attr: carribean
+    syn: [carribean]
+  - attr: middle eastern
+    syn: [middle eastern, middleeastern]
+  - attr: indian
+    syn: [indian]
+  - attr: indonesian
+    syn: [indonesian, indonesians]
+  - attr: thai
+    syn: [thai]
+  - attr: sports bar
+    syn: [sports, sportsbar, sports bars, sport bar]
+  - attr: wine
+    syn: [wine, wines]
+  - attr: sushi
+    syn: [sushi]
+  - attr: ramen
+    syn: [ramen, ramens]
+  - attr: taco
+    syn: [tacos, taco]
+  - attr: vegan
+    syn: [vege, veg, vegan, vegeterian, vegeterians, vegans]
+  - attr: lasagna
+    syn: [lasagna, lasagnas]
+  - attr: burrito
+    syn: [burrito, burritos]  
+
+- attr: location
+  sub-attr:
+  - attr: alexandra park
+    syn: [alexandra park]
+  - attr: annex
+    syn: [annex]
+  - attr: baldwin village
+    syn: [baldwin, baldwin village]
+  - attr: cabbagetown
+    syn: [cabbagetown, cabbage town]
+  - attr: cityplace
+    syn: [city place, cityplace]
+  - attr: chinatown
+    syn: [chinatown, china town]
+  - attr: church and wellsley
+    syn: [church and wellsley]
+  - attr: corktown
+    syn: [corktown]
+  - attr: discovery district
+    syn: [discovery district, discovery dist]
+  - attr: distillery district
+    syn: [distillery district, distillery dist]
+  - attr: entertainment district
+    syn: [entertainment district, entertainment dist]
+  - attr: east bayfront
+    syn: [east bayfront]
+  - attr: fashion district
+    syn: [fashion district, fashion dist]
+  - attr: financial district
+    syn: [financial district, financial dist]
+  - attr: garden district
+    syn: [garden dist]
+  - attr: grange park
+    syn: [grange park]
+  - attr: harbord village
+    syn: [harbord, harbord village]
+  - attr: harbourfront
+    syn: [harbour front, harbourfront, harbour]
+  - attr: kensington market
+    syn: [kensington]
+  - attr: little japan
+    syn: [little japan]
+  - attr: moss park
+    syn: [moss park]
+  - attr: old town
+    syn: [old town]
+  - attr: queen street west
+    syn: [queen, queen street]
+  - attr: regent park
+    syn: [regent park]
+  - attr: south core
+    syn: [south core]
+  - attr: st. clair
+    syn: [st. clair, st clair, saint clair]
+  - attr: st. james town
+    syn: [st. james town, st james town, saint james town, saint james, james town]
+  - attr: st. lawrence
+    syn: [st. lawrence, st lawrence, saint lawrence, lawrence]
+  - attr: toronto islands
+    syn: [toronto islands, toronto island]
+  - attr: trefann court
+    syn: [trefann court]
+  - attr: yorkville
+    syn: [yorkville]
+  - attr: greektown
+    syn: [greek town, greektown]
+  - attr: north toronto
+    syn: [north toronto]
+  - attr: uptown
+    syn: [uptown]
+  - attr: dundas
+    syn: [dundas]
+  - attr: bloor yonge
+    syn: [bloor-yonge, bloor yonge]
+  - attr: koreatown
+    syn: [koreatown, korea town, koreantown, korean town]
+  - attr: liberty village
+    syn: [liberty village]
+  - attr: little italy
+    syn: [little italy, littleitaly]
+  - attr: little portugal
+    syn: [lttle portugal, littleportugal]
+  - attr: little tibet
+    syn: [little tibet, littletibet]
+  - attr: north york
+    syn: [north york, northyork]
+  - attr: etobicoke
+    syn: [etobicoke, etobico]
+  - attr: scarborough
+    syn: [scarborough]
+  - attr: mississauga
+    syn: [mississauga]
+  - attr: lakefront
+    syn: [lakefront]
+  - attr: downtown
+    syn: [downtown, down town]
+  - attr: lakeshore
+    syn: [lakeshore, lakeshores]
+  - attr: steeles
+    syn: [steeles]
+  - attr: eaton centre
+    syn: [eaton center, eaton centre, eaton]

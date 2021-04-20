@@ -1,0 +1,22 @@
+nlu:
+- intent: ask_place_recommendation
+  examples: 
+    - Can you recommend restaurant?
+    - Do you have other recommendations?
+    - Do you know other place with [parking]{parking}?
+    - Is there any restaurant with [parking]{parking}?
+    - I am looking for [*]{food-type} restaurant.
+    - I am looking for [*]{food-type} restaurant with descent [patio]{patio}.
+    - I'm looking for a place for [dinner/lunch/brunch/breakfast]{occasion} in [*]{location} or [*]{location} with my girlfriend ->[date]{occasion}
+    - I'm looking for a place for [family/group]{occasion}, note that one of my colleges doesn't have meat -> [vegan]{food-type}
+    
+- intent: ask_history
+  examples: 
+    - Can you tell me some restaurants I've been to?
+    - Show my history.
+
+- intent: ask_question
+  examples: 
+    - Do they have [parking]{parking} spot?
+    - I'm thinking about moving with my car.. do they have [parking]{parking}?
+    - Is there any [*]{food-type} menu?
