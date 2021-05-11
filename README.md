@@ -22,3 +22,9 @@ This repository contains source code for Neureca project. Neureca is a framework
 │   └── recommender
 └── README.md
 ```
+
+We can see that the main breakdown of the codebase is between `neureca` and `demo-toronto`.
+
+The former, `neureca`, should be thought of as a Python package that we are developing and will eventually deploy in some way. More information about neureca directory can be found in [here](/neureca).
+
+The latter, `demo-toronto`, should be thought of as a demo ConvRec project using Neureca api on `yelp-toronto` review dataset. 
