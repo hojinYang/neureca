@@ -1,6 +1,5 @@
-# <center>Neureca💡 for Conversational Recommender Systems</center>
 
-The directory structure of Neureca is organized as follows:
+The directory structure of `neureca` is organized as follows:
 ```
 .
 ├── app
