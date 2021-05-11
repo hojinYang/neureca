@@ -4,12 +4,12 @@ import pickle
 from typing import Tuple
 import pytorch_lightning as pl
 from torch.utils.data import ConcatDataset, DataLoader
-from neureca.nlu.data.util import BaseDataset, NLUYamlToTrainConverter
+from neureca.recommender.data.util import BaseDataset, preprocess_rating
 
 
 DATA_DIRNAME = Path(__file__).resolve().parents[3] / "demo-toronto" / "data"
-ATTRIBUTE_FILE = DATA_DIRNAME / "attribute.yaml"
-NLU_FILE = DATA_DIRNAME / "nlu.yaml"
+
+
 TRAIN_DATA_DIRNAME = Path(__file__).resolve().parents[3] / "demo-toronto" / "preprocessed"
 RATIO_TRAIN, RATIO_VALID, RATIO_TEST = 0.6, 0.2, 0.2
 BATCH_SIZE = 64
@@ -21,7 +21,7 @@ class BaseDataModule(pl.LightningDataModule):
     Base LightningDataModule
     """
 
-    def __init__(self, featurizer, args: argparse.Namespace = None):
+    def __init__(self, args: argparse.Namespace = None):
         super().__init__()
         self.args = vars(args) if args is not None else {}
         self.on_gpu = isinstance(self.args.get("gpus", None), (str, int))
@@ -36,8 +36,6 @@ class BaseDataModule(pl.LightningDataModule):
         self.data_train: BaseDataset
         self.data_val: BaseDataset
         self.data_test: BaseDataset
-
-        self.featurizer = featurizer
 
         self.prepare_data()
 
@@ -65,16 +63,11 @@ class BaseDataModule(pl.LightningDataModule):
 
     def prepare_data(self):
         print("prepare_data")
-        if (self.train_data_dirname() / "train.pkl").exists():
+        if (self.train_data_dirname() / "ratings.csv").exists():
             return
 
         self.train_data_dirname().mkdir(exist_ok=True)
-        converter = NLUYamlToTrainConverter(NLU_FILE, ATTRIBUTE_FILE)
-        converter.update_attribute_dict()
-        training_data = converter.convert()
-        print(training_data)
-        with open(str(self.train_data_dirname() / "train.pkl"), "wb") as f:
-            pickle.dump(training_data, f)
+        preprocess_rating(self.data_dirname() / "ratings.csv", self.train_data_dirname())
 
     def train_dataloader(self):
         return DataLoader(
@@ -102,3 +95,8 @@ class BaseDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=self.on_gpu,
         )
+
+
+if __name__ == "__main__":
+    a = BaseDataModule()
+    a.prepare_data()

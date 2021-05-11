@@ -61,6 +61,61 @@ class BaseDataset(torch.utils.data.Dataset):
         return datum, target
 
 
+class BaseDatasetWithMask(torch.utils.data.Dataset):
+    """
+    Base Dataset class that simply processes data and targets through optional transforms.
+    Parameters
+    ----------
+    data
+        commonly these are torch tensors, numpy arrays, or PIL Images
+    targets
+        commonly these are torch tensors or numpy arrays
+    transform
+        function that takes a datum and returns the same
+    target_transform
+        function that takes a target and returns the same
+    """
+
+    def __init__(
+        self,
+        data: SequenceOrTensor,
+        targets: SequenceOrTensor,
+        masks: SequenceOrTensor,
+        transform: Callable = None,
+        target_transform: Callable = None,
+    ) -> None:
+        if (
+            (len(targets) != len(data))
+            or (len(targets) != len(masks))
+            or (len(targets) != len(masks))
+        ):
+            raise ValueError("Data and targets must be of equal length")
+
+        self.data = data
+        self.targets = targets
+        self.masks = masks
+        self.data_transform = transform
+        self.target_transform = target_transform
+
+    def __len__(self):
+        """Return length of the dataset"""
+        return len(self.data)
+
+    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+        """
+        Return a datum and its target, after processing by trasform function
+        """
+        datum, target, mask = self.data[index], self.targets[index], self.masks[index]
+
+        if self.data_transform is not None:
+            datum = self.data_transform(datum)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return datum, target, mask
+
+
 class Attribute:
     """
     class Attribute
@@ -199,7 +254,7 @@ class NLUYamlToTrainConverter:
         else:
             uttr = text
 
-        temp_max_iter = 1
+        temp_max_iter = 5
 
         handlers = list()
         patturns = re.findall("\[(.*?)\]\{(.*?)\}", uttr)

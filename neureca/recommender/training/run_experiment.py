@@ -11,8 +11,10 @@ import pytorch_lightning as pl
 
 
 def _import_class(module_and_class_name: str) -> type:
-    """Import class from a module, e.g. 'neureca.nlu.classifiers.MLP'"""
-    module_name, class_name = module_and_class_name.rsplit(".", 1)  # [neureca.nlu.classifiers, MLP]
+    """Import class from a module, e.g. 'neureca.recommender.cf_models.AE'"""
+    module_name, class_name = module_and_class_name.rsplit(
+        ".", 1
+    )  # [neureca.recommender.cf_models, AE]
     module = importlib.import_module(module_name)
     class_ = getattr(module, class_name)
     return class_
@@ -30,19 +32,16 @@ def _setup_parser():
     parser.add_argument("--data_class", type=str)
     parser.add_argument("--model_type", type=str)
     parser.add_argument("--model_class", type=str)
-    parser.add_argument("--featurizer_class", type=str)
 
     # Get the data and model classes, so that we can add their specific arguments
     temp_args, _ = parser.parse_known_args()
-    data_class = _import_class(f"neureca.nlu.data.{temp_args.data_class}")
-    model_class = _import_class(f"neureca.nlu.{temp_args.model_type}.{temp_args.model_class}")
-    feat_class = _import_class(f"neureca.nlu.featurizers.{temp_args.featurizer_class}")
+    data_class = _import_class(f"neureca.recommender.data.{temp_args.data_class}")
+    model_class = _import_class(
+        f"neureca.recommender.{temp_args.model_type}.{temp_args.model_class}"
+    )
 
     data_group = parser.add_argument_group("Data Args")
     data_class.add_to_argparse(data_group)
-
-    feat_group = parser.add_argument_group("Feat Args")
-    feat_class.add_to_argparse(feat_group)
 
     model_group = parser.add_argument_group("Model Args")
     model_class.add_to_argparse(model_group)
@@ -57,19 +56,15 @@ def main():
     Run an experiment
     sample command
     '''
-    python neureca/nlu/training/run_experiment.py  --data_class Intent --featurizer_class Bert --model_type classifiers --model_class MLP
-    python neureca/nlu/training/run_experiment.py  --data_class Attribute --featurizer_class Bert --sequence True --model_type recognizers --model_class LSTMCRF
+    python neureca/recommender/training/run_experiment.py  --data_class UserBased --model_type cf_models --model_class AE
     """
 
     parser = _setup_parser()
     args = parser.parse_args()
 
-    data_class = _import_class(f"neureca.nlu.data.{args.data_class}")
-    model_class = _import_class(f"neureca.nlu.{args.model_type}.{args.model_class}")
-    feat_class = _import_class(f"neureca.nlu.featurizers.{args.featurizer_class}")
-
-    featurizer = feat_class(args)
-    data = data_class(featurizer=featurizer, args=args)
+    data_class = _import_class(f"neureca.recommender.data.{args.data_class}")
+    model_class = _import_class(f"neureca.recommender.{args.model_type}.{args.model_class}")
+    data = data_class(args=args)
 
     if args.load_checkpoint is not None:
         model = model_class.load_from_checkpoint(
@@ -85,7 +80,7 @@ def main():
         filename="{epoch:03d}-{val_loss:.3f}-{valid_acc_epoch:.3f}", monitor="val_loss", mode="min"
     )
     callbacks = [early_stopping_callback, model_checkpoint_callback]
-    logger = pl.loggers.TensorBoardLogger("neureca/nlu/training/logs")
+    logger = pl.loggers.TensorBoardLogger("neureca/recommender/training/logs")
 
     args.weights_summary = "full"  # Print full summary of the model
     trainer = pl.Trainer.from_argparse_args(

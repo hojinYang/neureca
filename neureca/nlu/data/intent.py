@@ -13,12 +13,12 @@ from neureca.nlu.data.util import BaseDataset
 class Intent(BaseDataModule):
     def __init__(self, featurizer, args: argparse.Namespace = None):
         super().__init__(featurizer, args)
-        print("intent class init")
-        self.input_dims = self.featurizer.feature_dims
-
         with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
             data = pickle.load(f)
+
         intent_list = data["intents"]
+
+        self.input_dims = self.featurizer.feature_dims
         self.output_dims = len(intent_list)
 
     def config(self):
@@ -42,8 +42,11 @@ class Intent(BaseDataModule):
         intent_list = data["intents"]
         intent_mapper = {v: k for k, v in enumerate(intent_list)}
 
-        X = np.array([self.featurizer.featurize(datum["text"]) for datum in data["examples"]])
+        X = np.array(
+            [self.featurizer.featurize(datum["text"])["features"] for datum in data["examples"]]
+        )
         y = np.array([intent_mapper[datum["intent"]] for datum in data["examples"]])
+
         data = {"X": X, "y": y}
 
         with open(str(self.train_data_dirname() / "intent.pkl"), "wb") as f:
@@ -54,11 +57,6 @@ class Intent(BaseDataModule):
         with open(str(self.train_data_dirname() / "intent.pkl"), "rb") as f:
             data = pickle.load(f)
 
-        # intent_list = data["intents"]
-        # intent_mapper = {v: k for k, v in enumerate(intent_list)}
-
-        # X = np.array([self.featurizer.featurize(datum["text"]) for datum in data["examples"]])
-        # y = np.array([intent_mapper[datum["intent"]] for datum in data["examples"]])
         X, y = data["X"], data["y"]
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=self.ratio_test)
         X_train, X_val, y_train, y_val = train_test_split(

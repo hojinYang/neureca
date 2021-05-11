@@ -4,10 +4,12 @@ Parse attributes
 from pathlib import Path
 from typing import Dict, List, Union, Sequence
 import re
+import pandas as pd
 import yaml
 import pandas as pd
 from tqdm import tqdm
 from transformers import pipeline
+from spacy.lang.en import English
 
 
 class Attribute:
@@ -41,6 +43,9 @@ class AttributeParser:
     def __init__(self):
         self.attributes: List["Attribute"] = list()
         self.classifier = pipeline("sentiment-analysis")
+        self.nlp = English()
+
+        self.nlp.add_pipe("sentencizer")
 
     def generate_attribute(self, attribute_path: Path) -> None:
         with open(attribute_path) as f:
@@ -62,50 +67,68 @@ class AttributeParser:
                 relevant_attributes.append(a.name)
         return relevant_attributes
 
-    def _read_single_review(
-        self, review_text_path: Path
-    ) -> Dict[str, List[Union[int, float, str]]]:
+    def _read_single_review(self, review) -> Dict[str, List[Union[int, float, str]]]:
         review_dict: Dict[str, List[Union[int, float, str]]] = {
-            "uid": list(),
-            "iid": list(),
+            "user": list(),
+            "item": list(),
             "review_line": list(),
             "attr": list(),
             "sentiment": list(),
         }
 
-        uid, iid = review_text_path.stem.split("-")
+        # user, item = review_text_path.stem.split("-")
+        lines = self.nlp(review.review_text)
 
-        with open(review_text_path, "r") as f:
-            for line in f.readlines():
-                line = re.sub(";", "", line.lower().strip())
-                review_dict["attr"] = list(self._read_single_review_line(line))
-                review_dict["review_line"] = [line] * len(review_dict["attr"])
+        for line in lines.sents:
 
-        review_dict["uid"] = [int(uid)] * len(review_dict["attr"])
-        review_dict["iid"] = [int(iid)] * len(review_dict["attr"])
+            line = re.sub(";", "", line.text.lower().strip())
+            review_dict["attr"] = list(self._read_single_review_line(line))
+            review_dict["review_line"] = [line] * len(review_dict["attr"])
+
+        review_dict["user"] = [review.user] * len(review_dict["attr"])
+        review_dict["item"] = [review.item] * len(review_dict["attr"])
 
         if len(review_dict["review_line"]) > 0:
             sents = self.classifier(review_dict["review_line"])
             review_dict["sentiment"] = [
-                x["score"] if x["label"] == "POSITIVE" else -x["score"]
-                for x in sents
+                x["score"] if x["label"] == "POSITIVE" else -x["score"] for x in sents
             ]
 
         return review_dict
 
     def build_dataset(self, review_path: Path) -> None:
         review_dict: Dict[str, List[Union[int, float, str]]] = {
-            "uid": list(),
-            "iid": list(),
+            "user": list(),
+            "item": list(),
             "review_line": list(),
             "attr": list(),
             "sentiment": list(),
         }
 
-        for review_text_path in tqdm(review_path.glob("*.txt")):
-            _review_dict = self._read_single_review(review_text_path)
+        reviews = pd.read_csv(
+            review_path,
+            header=0,
+            usecols=[0, 1, 3],
+            names=["user", "item", "review_text"],
+            engine="python",
+        )
+        print(reviews)
+
+        for review in tqdm(reviews.itertuples(index=True, name="Pandas"), total=len(reviews)):
+            _review_dict = self._read_single_review(review)
             for key in review_dict:
                 review_dict[key] += _review_dict[key]
 
-        ret = pd.DataFrame(review_dict)
-        ret.to_csv("temp.csv", index=False)
+        # for review_text_path in tqdm(review_path.glob("*.txt")):
+        #    _review_dict = self._read_single_review(review_text_path)
+        #    for key in review_dict:
+        #        review_dict[key] += _review_dict[key]
+
+        return pd.DataFrame(review_dict)
+
+
+def create_db(review_path, attribute_path, db_path):
+    ap = AttributeParser()
+    ap.generate_attribute(attribute_path)
+    db = ap.build_dataset(review_path)
+    db.to_csv(str(db_path), index=False)
