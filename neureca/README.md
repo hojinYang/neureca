@@ -35,7 +35,7 @@ Within `neureca`,  there is breakdown between `nlu`, `recommender`, `explanator`
 - `dialogue_manager` contains basic components developers needs when designing dialogue policy
 - `app` contains NeurecaApi, a RESTful API that allows deveopers to deploy a Neureca model as an application.
 
-In `nlu` and `recommender`, there is further breakdown between `data`, models(e.g. featurizers,classifiers, and cf_models) and `training`. 
+In `nlu` and `recommender`, there is further breakdown between `data`, models(e.g. `recognizers`, `classifiers`, and `cf_models`) and `training`. 
 
 ### Data
 
