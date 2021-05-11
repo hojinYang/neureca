@@ -1,4 +1,4 @@
-# Neureca Project
+# Neureca💡 Project
 
 This repository contains source code for Neureca💡 project. Neureca💡 is a framework for building conversational recommender system. It is also an open-source project that helps any ML researchers develop ConvRec system and contribute to key components easily.
 
