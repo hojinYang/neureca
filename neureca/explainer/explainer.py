@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 from summarizers import Summarizers
-from neureca.explanator.utils.parse_attribute import create_db
+from neureca.explainer.utils.parse_attribute import create_db
 
 REVIEW_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "ratings.csv"
 ATTRIBUTE_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "attribute.yaml"
@@ -9,7 +9,7 @@ ATTRIBUTE_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" /
 DB_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "db.csv"
 
 
-class Explanator:
+class Explainer:
     def __init__(self):
         if not DB_PATH.exists():
             create_db(REVIEW_PATH, ATTRIBUTE_PATH, DB_PATH)
@@ -70,7 +70,7 @@ class Explanator:
 
 
 if __name__ == "__main__":
-    a = Explanator()
+    a = Explainer()
     z = a.answer_question(
         item="y0QzKWNVoXCbZpk6uhEgGA", attribute_list=["parking", "italian", "date"]
     )
