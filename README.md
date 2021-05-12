@@ -17,7 +17,7 @@ This repository contains source code for Neureca💡 project. Neureca💡 is a f
 ├── neureca
 │   ├── app
 │   ├── dialogue_manager
-│   ├── explanator
+│   ├── explainer
 │   ├── nlu
 │   └── recommender
 └── README.md

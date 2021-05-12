@@ -27,11 +27,11 @@ The directory structure of `neureca` is organized as follows:
 
 ```
 
-Within `neureca`,  there is breakdown between `nlu`, `recommender`, `explanator`, `dialogue_manager` and `app`. 
+Within `neureca`,  there is breakdown between `nlu`, `recommender`, `explainer`, `dialogue_manager` and `app`. 
 
 - `nlu` module is responsible for understanding natural language. Specifically, in this module we will train a neural networks for intent classifier and attribute recognizer. Raw text from user would be converted the into embedding using our featurizers which neural networks takes as input for training. 
 - `recommender` module is responsible for generating recommendations for user. 
-- In `explanator` module, we generate explanations or answers for the user's question based on review data. 
+- In `explainer` module, we generate explanations or answers for the user's question based on review data. 
 - `dialogue_manager` contains basic components developers needs when designing dialogue policy
 - `app` contains NeurecaApi, a RESTful API that allows deveopers to deploy a Neureca model as an application.
 

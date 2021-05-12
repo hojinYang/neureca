@@ -12,10 +12,10 @@ class Bert:
         self.args = vars(args) if args is not None else {}
         self.is_sequence = self.args.get("sequence", False)
         self.max_length = self.args.get("max_length", MAX_LENGTH)
-
         self.tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
         self.model = DistilBertModel.from_pretrained("distilbert-base-uncased")
         self.model.eval()
+
         if self.is_sequence:
             self.feature_dims = (self.max_length, BERT_DIM)
         else:
