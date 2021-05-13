@@ -1,6 +1,4 @@
-// variables
-let userName = null;
-let state = 'SUCCESS';
+
 
 // functions
 function Message(arg) {
@@ -40,13 +38,13 @@ function sendMessage(text, message_side) {
     $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
 }
 
-function greet() {
+function trigger() {
     setTimeout(function () {
         return sendMessage("Neuerca💡 here!", 'left');
     }, 1000);
 
     setTimeout(function () {
-        return sendMessage("Please enter your id.", 'left');
+        return sendMessage("Please enter your name to start conversation.", 'left');
     }, 2000);
 }
 
@@ -56,70 +54,43 @@ function onClickAsEnter(e) {
     }
 }
 
-function setUserName(username) {
+//function setUserName(username) {
 
-    if (username != null && username.replace(" ", "" !== "")) {
-        setTimeout(function () {
-            return sendMessage("Hello, user id" + username + "!", 'left');
-        }, 1000);
-        setTimeout(function () {
-            return sendMessage("I'll give you spot-on restaurant you'll love.", 'left');
-        }, 2000);
+//    if (username != null && username.replace(" ", "" !== "")) {
+//        setTimeout(function () {
+//            return sendMessage("Hello, user id" + username + "!", 'left');
+//        }, 1000);
+//        setTimeout(function () {
+//            return sendMessage("I'll give you spot-on restaurant you'll love.", 'left');
+//        }, 2000);
 
-        return username;
+//        return username;
 
-    } else {
-        setTimeout(function () {
-            return sendMessage("Please enter appropriate id.", 'left');
-        }, 1000);
+//    } else {
+//        setTimeout(function () {
+//            return sendMessage("Please enter appropriate id.", 'left');
+//        }, 1000);
 
-        return null;
-    }
-}
+//        return null;
+//    }
+//}
 
-function requestChat(messageText, url_pattern) {
+function requestChat(messageText) {
     $.ajax({
-        url: "http://0.0.0.0:8080/" + userName + '/' + url_pattern + '/' + messageText,
+        url: "http://0.0.0.0:8080/" + 'request_chat/' + messageText,
         type: "GET",
         dataType: "json",
         success: function (data) {
-            intent = data['intent'];
+            text = data['text'];
+            setTimeout(function () {
+                return sendMessage(text, 'left');
+            }, 500);
+            return null
 
-            if (intent === 'ask_information') {
-                setTimeout(function () {
-                    return sendMessage(data['review'], 'left');
-                }, 500);
-
-                if (data['preference'] != null) {
-                    setTimeout(function () {
-                        return sendMessage("You seem to have a preference for " + data['preference'], 'left');
-                    }, 1000);
-                };
-                return null;
-
-            } else if (intent == 'ask_history') {
-                setTimeout(function () {
-                    return sendMessage(data['history'], 'left');
-                }, 1000);
-            } else if (intent == 'ask_recommendation') {
-                setTimeout(function () {
-                    return sendMessage(data['rec'], 'left');
-                }, 1000);
-
-            } else {
-                setTimeout(function () {
-                    return sendMessage(data['intent'], 'left');
-                }, 1000);
-                setTimeout(function () {
-                    return sendMessage(data['preference'], 'left');
-                }, 1500);
-            }
         },
-
         error: function (request, status, error) {
             console.log(error);
-
-            return sendMessage('죄송합니다. 서버 연결에 실패했습니다.', 'left');
+            return sendMessage('Sorry, failed to connect to server', 'left');
         }
     });
 }
@@ -127,24 +98,5 @@ function requestChat(messageText, url_pattern) {
 function onSendButtonClicked() {
     let messageText = getMessageText();
     sendMessage(messageText, 'right');
-
-    if (userName == null) {
-        userName = setUserName(messageText);
-
-    } else {
-        if (messageText.includes('Hi')) {
-            setTimeout(function () {
-                return sendMessage("Hi, Neu-Rec-Ca here!", 'left');
-            }, 1000);
-        } else if (messageText.includes('Thanks')) {
-            setTimeout(function () {
-                return sendMessage("Anytime!", 'left');
-            }, 1000);
-
-        } else if (state.includes('REQUIRE')) {
-            return requestChat(messageText, 'fill_slot');
-        } else {
-            return requestChat(messageText, 'request_chat');
-        }
-    }
+    return requestChat(messageText)
 }

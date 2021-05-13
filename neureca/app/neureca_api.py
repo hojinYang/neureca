@@ -21,8 +21,9 @@ class NeurecaApi:
         @self.app.route("/request_chat/<text>", methods=["GET"])
         def get_request(text):
 
-            nlu_output = self.nlu.run(text)
-            output_texts = self.dialogue_manager.apply(
-                nlu_output, self.user_belief, self.recommender, self.explainer
-            )
-            return json.dumps({output_texts})
+            # nlu_output = self.nlu.run(text)
+            # output_texts = self.dialogue_manager.apply(
+            #    nlu_output, self.user_belief, self.recommender, self.explainer
+            # )
+            output = {"text": "hihi"}
+            return json.dumps(output)
