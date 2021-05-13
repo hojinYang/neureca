@@ -1,17 +1,23 @@
 from flask import render_template
 from .dialogue_manager import bubbles
-from neureca.app.neureca_api import NeurecaApi
-from neureca.dialogue_manager.manager import Manager
-from neureca.nlu.nlu import NLU
-from neureca.recommender.recommender import Recommender
+from neureca import NeurecaApi
+from neureca import NLU, Recommender, Explainer, Manager
 
 
 nlu = NLU()
 recommender = Recommender()
 elicit_bubble = bubbles.ElicitBubble()
+explainer = Explainer()
 manager = Manager(initial_bubble=elicit_bubble)
+initial_user_belief = dict()
 
-neureca = NeurecaApi(nlu, recommender, manager, None)
+neureca = NeurecaApi(
+    nlu=nlu,
+    recommender=recommender,
+    explainer=explainer,
+    dialogue_manager=manager,
+    initial_user_belief=initial_user_belief,
+)
 
 
 @neureca.app.route("/")
