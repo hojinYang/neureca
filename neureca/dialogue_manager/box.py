@@ -6,10 +6,15 @@ CHANGE_BUBBLE = 4
 
 class Box:
     def __init__(self):
-        return
+        self.actions = dict()
+        self.prev_action = None
+        self.box_state = None
 
     def get_name(self):
         return type(self).__name__
 
-    def apply_box(self, entity, intent, prev_utter_type, text, user_belief):
+    def apply_box(self, intent, attributes, text, user_belief):
+        pass
+
+    def start_box(self, user_belief):
         pass
