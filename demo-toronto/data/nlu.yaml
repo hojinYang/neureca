@@ -2,6 +2,10 @@ nlu:
 - intent: ASK_PLACE_RECOMMENDATION
   examples: 
     - Can you recommend restaurant?
+    - Could you recommend restaurant?
+    - Can you recommend any restaurant?
+    - Can you recommend nice restaurants?
+    - Can you recommend some cool place?
     - Do you have other recommendations?
     - Do you know other place with [parking]{parking}?
     - Is there any restaurant with [parking]{parking}?
@@ -11,19 +15,27 @@ nlu:
     - I'm looking for a place for [family/group]{occasion}, note that one of my colleges doesn't have meat -> [vegan]{food_type}
     - I'm looking for a place in [*]{location}
     - I'm looking for a place for [*]{occasion}
-
-- intent: ASK_HISTORY
-  examples: 
-    - Can you tell me some restaurants I've been to?
-    - Show my history.
+    - I'm looking for a place like [place_name]{place_name} or [place_name]{place_name}
+    - I'm looking for a place like [place_name]{place_name} in [*]{location} for [*]{occasion}
 
 - intent: PROVIDE_PREFERENCE
   examples:
     - I prefer [*]{food_type}
     - you know, [*]{food_type} is always right.
+    - i'm always down for [*]{food_type}
+    - I like the place like [place_name]{place_name} or [place_name]{place_name}
+    - I like the place like [place_name]{place_name} or [place_name]{place_name} because they have [*]{food_type}.
 
 - intent: ASK_QUESTION
   examples: 
     - Do they have [parking]{parking} spot?
     - I'm thinking about moving with my car.. do they have [parking]{parking}?
     - Is there any [*]{food_type} menu?
+
+
+- intent: NO_INTENT
+  examples:
+    - "[*]{food_type}"
+    - "[*]{location}"
+    - "[*]{occasion}"
+    - "[place_name]{place_name}"

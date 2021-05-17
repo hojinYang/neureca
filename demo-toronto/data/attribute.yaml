@@ -1,4 +1,7 @@
 attribute:
+- attr: place_name
+  is_item: True
+  
 - attr: ambiance
   syn: [ambiance, ambience, ambient, atmosphere, styling, dcor, decorations, decors, decor, deco]
 

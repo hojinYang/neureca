@@ -7,6 +7,7 @@ import random
 import yaml
 import re
 import torch
+import pandas as pd
 
 
 SequenceOrTensor = Union[Sequence, torch.tensor]
@@ -152,7 +153,6 @@ class PatternMatcher:
                 self.attr_list.append(attr_dict[attr])
         else:
             for c in target.children:
-
                 self.attr_list.append(attr_dict[c.name])
 
         random.shuffle(self.attr_list)
@@ -182,9 +182,10 @@ class PatternMatcher:
 
 
 class NLUYamlToTrainConverter:
-    def __init__(self, nlu_path, attr_path):
+    def __init__(self, nlu_path, attr_path, rating_path):
         self.nlu_path: Path = nlu_path
         self.attr_path: Path = attr_path
+        self.rating_path: Path = rating_path
         self.attr_dict: Dict[str, Attribute] = dict()
 
     def update_attribute_dict(self) -> None:
@@ -197,7 +198,15 @@ class NLUYamlToTrainConverter:
 
     def _rec(self, attr: Dict[str, str]) -> Attribute:
 
-        if "sub-attr" not in attr:
+        if "is_item" in attr:
+            rating = pd.read_csv(str(self.rating_path))
+
+            item_names = rating["name"].unique().tolist()
+            attr["syn"] = item_names
+
+            attr_cls = Attribute(attr)
+
+        elif "sub-attr" not in attr:
             attr_cls = Attribute(attr)
 
         else:
@@ -288,7 +297,8 @@ class NLUYamlToTrainConverter:
 if __name__ == "__main__":
     p_attr = Path("/home/hojin/code/neureca/demo-toronto/data/attribute.yaml")
     p_nlu = Path("/home/hojin/code/neureca/demo-toronto/data/nlu.yaml")
-    converter = NLUYamlToTrainConverter(p_nlu, p_attr)
+    p_rating = Path("/home/hojin/code/neureca/demo-toronto/data/ratings.csv")
+    converter = NLUYamlToTrainConverter(p_nlu, p_attr, p_rating)
     converter.update_attribute_dict()
 
     print(converter.convert())
