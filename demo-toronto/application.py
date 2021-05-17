@@ -3,8 +3,10 @@ from flask import render_template
 
 # from .dialogue_manager import bubbles
 from neureca import NeurecaApi
+from bubbles import greeting_bubble
 from neureca import NLU, Recommender, Explainer, Manager
 
+manager = Manager(initial_bubble=greeting_bubble)
 
 # nlu = NLU()
 # recommender = Recommender()
@@ -25,7 +27,7 @@ neureca = NeurecaApi(
     nlu={},
     recommender={},
     explainer={},
-    dialogue_manager={},
+    dialogue_manager=manager,
     initial_user_belief={},
 )
 

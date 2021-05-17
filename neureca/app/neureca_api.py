@@ -27,3 +27,9 @@ class NeurecaApi:
             # )
             output = {"text": "hihi"}
             return json.dumps(output)
+
+        @self.app.route("/start_chat", methods=["GET"])
+        def start_chat():
+            output = self.dialogue_manager.start_manager(user_belief=self.user_belief)
+            output = {"text": output["utter"][0]}
+            return json.dumps(output)

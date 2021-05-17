@@ -95,6 +95,26 @@ function requestChat(messageText) {
     });
 }
 
+function startChat() {
+    $.ajax({
+        url: "http://0.0.0.0:8080/" + 'start_chat',
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            text = data['text'];
+            setTimeout(function () {
+                return sendMessage(text, 'left');
+            }, 500);
+            return null
+
+        },
+        error: function (request, status, error) {
+            console.log(error);
+            return sendMessage('Sorry, failed to connect to server', 'left');
+        }
+    });
+}
+
 function onSendButtonClicked() {
     let messageText = getMessageText();
     sendMessage(messageText, 'right');

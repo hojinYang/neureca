@@ -1,14 +1,13 @@
-STATE_FINISH = 1
-STATE_CONTINUE = 2
-STATE_REPAIR = 3
-CHANGE_BUBBLE = 4
+import neureca.dialogue_manager.box as box
+
+CHANGE_BUBBLE = 0
 
 
 class Bubble:
     def __init__(self, box_list):
         self.out_bubble = None
 
-        self.box_dict = {box.name: box for box in box_list}
+        self.box_dict = {box.get_name(): box for box in box_list}
         self.cur_box = None
 
         self.num_visited = 0
@@ -16,7 +15,10 @@ class Bubble:
         self.next_bubble = None
 
     def start_bubble(self, user_belief):
-        pass
+        box_name = self.set_start_box(user_belief)
+        self.cur_box = self.box_dict[box_name]
+        output = self.cur_box.start_box(user_belief=user_belief)
+        return output
 
     def set_start_box(self, user_belief):
         pass
@@ -50,11 +52,11 @@ class Bubble:
         bubble_output["utter"] = box_output["utter"]
 
         # case 1: user's information is not enough to finish current box task
-        if box_output["state"] == STATE_CONTINUE:
+        if box_output["state"] == box.STATE_CONTINUE:
             return bubble_output
 
         # case 2: finish current box task
-        elif box_output["state"] == STATE_FINISH:
+        elif box_output["state"] == box.STATE_FINISH:
             box_name = self.get_next_box(user_belief)
 
             if box_name == CHANGE_BUBBLE:
