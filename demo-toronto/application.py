@@ -8,27 +8,19 @@ from neureca import NLU, Recommender, Explainer, Manager
 
 manager = Manager(initial_bubble=greeting_bubble)
 
-# nlu = NLU()
+nlu = NLU()
 # recommender = Recommender()
 # elicit_bubble = bubbles.ElicitBubble()
 # explainer = Explainer()
 # manager = Manager(initial_bubble={})
-# initial_user_belief = dict()
-"""
+initial_user_belief = {"user_name": None, "food_type": None, "location": None, "occasion": None}
+
 neureca = NeurecaApi(
     nlu=nlu,
-    recommender=recommender,
-    explainer=explainer,
-    dialogue_manager=manager,
-    initial_user_belief=initial_user_belief,
-)
-"""
-neureca = NeurecaApi(
-    nlu={},
     recommender={},
     explainer={},
     dialogue_manager=manager,
-    initial_user_belief={},
+    initial_user_belief=initial_user_belief,
 )
 
 

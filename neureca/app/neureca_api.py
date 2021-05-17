@@ -21,15 +21,24 @@ class NeurecaApi:
         @self.app.route("/request_chat/<text>", methods=["GET"])
         def get_request(text):
 
-            # nlu_output = self.nlu.run(text)
-            # output_texts = self.dialogue_manager.apply(
-            #    nlu_output, self.user_belief, self.recommender, self.explainer
-            # )
-            output = {"text": "hihi"}
+            nlu_output = self.nlu.run(text)
+            print(nlu_output)
+            output = self.dialogue_manager.apply(
+                intent=nlu_output["intent"],
+                attributes=nlu_output["attributes"],
+                text=text,
+                user_belief=self.user_belief,
+                recommender={},
+                explainer={},
+            )
+            print(output)
+            print(self.user_belief)
+            output = {"text": output["utter"]}
             return json.dumps(output)
 
         @self.app.route("/start_chat", methods=["GET"])
         def start_chat():
             output = self.dialogue_manager.start_manager(user_belief=self.user_belief)
-            output = {"text": output["utter"][0]}
+            output = {"text": output["utter"]}
+
             return json.dumps(output)

@@ -14,7 +14,7 @@ INTENT_PATH = (
     / "logs"
     / "Intent"
     / "default"
-    / "version_2"
+    / "version_5"
     / "checkpoints"
 )
 
@@ -24,7 +24,7 @@ ATTRIBUTE_PATH = (
     / "logs"
     / "Attribute"
     / "default"
-    / "version_3"
+    / "version_7"
     / "checkpoints"
 )
 
@@ -91,4 +91,4 @@ if __name__ == "__main__":
     print(nlu.run("Is there any chinese menu?"))
     print(nlu.run("Is there any japanese menu?"))
     print(nlu.run("I am looking for korean restaurant with descent patio."))
-    print(nlu.run("I am looking for indian restaurant with descent patio."))
+    print(nlu.run("I'm looking for a place for dinner in annex with my girlfriend"))

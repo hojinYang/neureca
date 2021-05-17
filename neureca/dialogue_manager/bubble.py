@@ -36,7 +36,7 @@ class Bubble:
     def get_next_bubble(self):
         return self.next_bubble
 
-    def apply_bubble(self, intent, attributes, text, user_belief):
+    def apply_bubble(self, intent, attributes, text, user_belief, recommender, explainer):
         """
         dealing with user uttereance
         """
@@ -48,8 +48,17 @@ class Bubble:
         # current box should not be None
 
         # run
-        box_output = self.cur_box.apply_box(intent, attributes, text, user_belief)
+        box_output = self.cur_box.apply_box(
+            intent=intent,
+            attributes=attributes,
+            text=text,
+            user_belief=user_belief,
+            recommender=recommender,
+            expaliner=explainer,
+        )
+
         bubble_output["utter"] = box_output["utter"]
+        print(box_output)
 
         # case 1: user's information is not enough to finish current box task
         if box_output["state"] == box.STATE_CONTINUE:
@@ -65,6 +74,6 @@ class Bubble:
             else:
                 self.cur_box = self.box_dict[box_name]
                 start_utter = self.cur_box.start_box(user_belief)
-                box_name["utter"].append(start_utter)
+                box_output["utter"] += start_utter["utter"]
 
         return bubble_output

@@ -33,7 +33,7 @@ attribute:
 - attr: patio
   syn: [patio, patios]
 
-- attr: food-type
+- attr: food_type
   sub-attr:
   - attr: burger
     syn: [burger, burgers, hamburger, hambergers]

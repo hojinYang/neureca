@@ -38,42 +38,12 @@ function sendMessage(text, message_side) {
     $messages.animate({ scrollTop: $messages.prop('scrollHeight') }, 300);
 }
 
-function trigger() {
-    setTimeout(function () {
-        return sendMessage("Neuerca💡 here!", 'left');
-    }, 1000);
-
-    setTimeout(function () {
-        return sendMessage("Please enter your name to start conversation.", 'left');
-    }, 2000);
-}
-
 function onClickAsEnter(e) {
     if (e.keyCode === 13) {
         onSendButtonClicked()
     }
 }
 
-//function setUserName(username) {
-
-//    if (username != null && username.replace(" ", "" !== "")) {
-//        setTimeout(function () {
-//            return sendMessage("Hello, user id" + username + "!", 'left');
-//        }, 1000);
-//        setTimeout(function () {
-//            return sendMessage("I'll give you spot-on restaurant you'll love.", 'left');
-//        }, 2000);
-
-//        return username;
-
-//    } else {
-//        setTimeout(function () {
-//            return sendMessage("Please enter appropriate id.", 'left');
-//        }, 1000);
-
-//        return null;
-//    }
-//}
 
 function requestChat(messageText) {
     $.ajax({
@@ -82,9 +52,11 @@ function requestChat(messageText) {
         dataType: "json",
         success: function (data) {
             text = data['text'];
-            setTimeout(function () {
-                return sendMessage(text, 'left');
-            }, 500);
+            for (let i = 0; i < text.length; i++) {
+                setTimeout(function () {
+                    return sendMessage(text[i], 'left');
+                }, 500 * (i + 1));
+            }
             return null
 
         },
@@ -102,9 +74,11 @@ function startChat() {
         dataType: "json",
         success: function (data) {
             text = data['text'];
-            setTimeout(function () {
-                return sendMessage(text, 'left');
-            }, 500);
+            for (let i = 0; i < text.length; i++) {
+                setTimeout(function () {
+                    return sendMessage(text[i], 'left');
+                }, 500 * (i + 1));
+            }
             return null
 
         },
