@@ -14,7 +14,7 @@ INTENT_PATH = (
     / "logs"
     / "Intent"
     / "default"
-    / "version_5"
+    / "version_0"
     / "checkpoints"
 )
 
@@ -24,7 +24,7 @@ ATTRIBUTE_PATH = (
     / "logs"
     / "Attribute"
     / "default"
-    / "version_7"
+    / "version_1"
     / "checkpoints"
 )
 
@@ -92,3 +92,18 @@ if __name__ == "__main__":
     print(nlu.run("Is there any japanese menu?"))
     print(nlu.run("I am looking for korean restaurant with descent patio."))
     print(nlu.run("I'm looking for a place for dinner in annex with my girlfriend"))
+    print(
+        nlu.run(
+            "I'm looking for a place for like BukChangDongSoonTofu for lunch in annex with my girlfriend"
+        )
+    )
+    print(
+        nlu.run(
+            "I'm looking for a place for like Buk ChangDongSoonTofu or Sushi on Bloor for family gathering"
+        )
+    )
+    print(nlu.run("Can you recommend a restaurant for me"))
+    print(nlu.run("You know, sushi is always right"))
+    print(nlu.run("You know, korean food is always right"))
+    print(nlu.run("You know, coffee is always right"))
+    print(nlu.run("I like the place like Tim Hortons or Starbucks"))

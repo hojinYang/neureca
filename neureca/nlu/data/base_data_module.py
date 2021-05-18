@@ -10,6 +10,7 @@ from neureca.nlu.data.util import BaseDataset, NLUYamlToTrainConverter
 DATA_DIRNAME = Path(__file__).resolve().parents[3] / "demo-toronto" / "data"
 ATTRIBUTE_FILE = DATA_DIRNAME / "attribute.yaml"
 NLU_FILE = DATA_DIRNAME / "nlu.yaml"
+RATING_FILE = DATA_DIRNAME / "ratings.csv"
 TRAIN_DATA_DIRNAME = Path(__file__).resolve().parents[3] / "demo-toronto" / "preprocessed"
 RATIO_TRAIN, RATIO_VALID, RATIO_TEST = 0.6, 0.2, 0.2
 BATCH_SIZE = 64
@@ -69,7 +70,7 @@ class BaseDataModule(pl.LightningDataModule):
             return
 
         self.train_data_dirname().mkdir(exist_ok=True)
-        converter = NLUYamlToTrainConverter(NLU_FILE, ATTRIBUTE_FILE)
+        converter = NLUYamlToTrainConverter(NLU_FILE, ATTRIBUTE_FILE, RATING_FILE)
         converter.update_attribute_dict()
         training_data = converter.convert()
         print(training_data)

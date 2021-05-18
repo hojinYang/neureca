@@ -22,6 +22,8 @@ nlu:
   examples:
     - I prefer [*]{food_type}
     - you know, [*]{food_type} is always right.
+    - you know, [*]{food_type} food is always right.
+    - you know, [*]{food_type} dish is always right.
     - i'm always down for [*]{food_type}
     - I like the place like [place_name]{place_name} or [place_name]{place_name}
     - I like the place like [place_name]{place_name} or [place_name]{place_name} because they have [*]{food_type}.
