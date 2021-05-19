@@ -3,22 +3,27 @@ from flask import render_template
 
 # from .dialogue_manager import bubbles
 from neureca import NeurecaApi
-from bubbles import greeting_bubble
 from neureca import NLU, Recommender, Explainer, Manager
+from bubbles import greeting_bubble
+
 
 manager = Manager(initial_bubble=greeting_bubble)
 
 nlu = NLU()
-# recommender = Recommender()
-# elicit_bubble = bubbles.ElicitBubble()
-# explainer = Explainer()
-# manager = Manager(initial_bubble={})
-initial_user_belief = {"user_name": None, "food_type": None, "location": None, "occasion": None}
+recommender = Recommender()
+explainer = Explainer()
+initial_user_belief = {
+    "user_name": None,
+    "food_type": None,
+    "location": None,
+    "occasion": None,
+    "place_name": [],
+}
 
 neureca = NeurecaApi(
     nlu=nlu,
-    recommender={},
-    explainer={},
+    recommender=recommender,
+    explainer=explainer,
     dialogue_manager=manager,
     initial_user_belief=initial_user_belief,
 )

@@ -1,6 +1,7 @@
 import neureca.dialogue_manager.bubble as bubble
 from .greeting import Greeting
 from .elicitation import AskEssentialInfo, AskFoodType
+from .recommendation import Recommend
 
 
 class GreetingBubble(bubble.Bubble):
@@ -24,10 +25,22 @@ class ElicitationBubble(bubble.Bubble):
             return "AskEssentialInfo"
         if user_belief["food_type"] is None:
             return "AskFoodType"
+
+        print("lets change bubble")
         return bubble.CHANGE_BUBBLE
+
+
+class RecommendationBubble(bubble.Bubble):
+    def set_start_box(self, user_belief):
+        print("SDFSDKFSOGRMGRIMGRIM")
+        return "Recommend"
+
+    def get_next_box(self, user_belief):
+        return "Recommend"
 
 
 greeting_bubble = GreetingBubble([Greeting()])
 elicitation_bubble = ElicitationBubble([AskEssentialInfo(), AskFoodType()])
+recommendation_bubble = RecommendationBubble([Recommend()])
 greeting_bubble.set_next_bubble(elicitation_bubble)
-elicitation_bubble.set_next_bubble(None)
+elicitation_bubble.set_next_bubble(recommendation_bubble)

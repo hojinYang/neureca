@@ -2,9 +2,18 @@ import neureca.dialogue_manager.box as box
 
 
 class AskEssentialInfo(box.Box):
-    def apply_box(self, intent, attributes, text, user_belief, **unused):
+    def apply_box(self, intent, attributes, text, user_belief, explainer, recommender):
         if intent == "ASK_PLACE_RECOMMENDATION":
-            user_belief.update(attributes)
+
+            for k, v in attributes.items():
+                # TODO should change logic
+                if k == "place_name":
+                    continue
+
+                attr = explainer.convert_syn_to_attr(v[0])
+                user_belief[k] = attr
+
+            # user_belief.update(attributes)
 
             if user_belief["location"] is None and user_belief["occasion"] is None:
                 utter = self._action_ask_location_and_occasion(user_belief)
@@ -39,15 +48,19 @@ class AskEssentialInfo(box.Box):
         return utter
 
     def _action_ask_occasion(self, user_belief):
-        utter = ["{}, nice! what about occasion?".format(user_belief["location"])]
+        utter = [
+            "In {}... I see. Are you looking for a restaurant for a specific purpose?".format(
+                user_belief["location"]
+            )
+        ]
         return utter
 
     def _action_ask_location(self, user_belief):
-        utter = ["{}, nice! how about location?".format(user_belief["occasion"])]
+        utter = ["{}, nice! what about location?".format(user_belief["occasion"])]
         return utter
 
     def _action_finished(self, user_belief):
-        utter = ["{}, {}, nice! ".format(user_belief["occasion"], user_belief["location"])]
+        utter = ["i see, thanks for the info."]
         return utter
 
     def _action_fallback(self):

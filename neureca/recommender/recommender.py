@@ -4,18 +4,21 @@ from pathlib import Path
 from neureca.recommender.training.run_experiment import _import_class
 import torch
 import numpy as np
+import pandas as pd
 
 ITEM_ID_DICT_PATH = (
     Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "item_id_dict.json"
 )
 
+RATINGS_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "ratings.csv"
+
 CF_PATH = (
     Path(__file__).resolve().parents[0]
     / "training"
     / "logs"
-    / "Intent"
+    / "UserBased"
     / "default"
-    / "version_2"
+    / "version_0"
     / "checkpoints"
 )
 
@@ -45,32 +48,61 @@ class Recommender:
             self.item2id = json.load(f)
             self.id2item = {v: k for k, v in self.item2id.items()}
 
+        self.item2name = dict(pd.read_csv(str(RATINGS_PATH))[["business_id", "name"]].values)
+        self.name2item = {v.lower(): k for k, v in self.item2name.items()}
+
         self.cf_model = load_model(CF_PATH)
+
+    def convert_name_to_item(self, name_list):
+        return [self.name2item[name] for name in name_list]
+
+    def convert_item_to_name(self, item_list):
+        return [self.item2name[item] for item in item_list]
 
     def _get_cf_topK(self, item_list, topK):
         item_id_list = [self.item2id[item] for item in item_list]
-        preds = self.cf_model.pred_from_item_list(item_id_list)
+        print(item_id_list)
+
+        history = torch.zeros(len(self.item2id))
+        history[item_id_list] = 5.0
+        history.unsqueeze_(0)
+        print(history.sum())
+
+        preds = self.cf_model(history)
+        preds = preds.numpy().squeeze()
+        print(preds[:50])
         topKs = np.argpartition(preds, -topK)[-topK:]
-        topKs = topK[np.argsort(preds[topKs])]
+        topKs = topKs[np.argsort(preds[topKs])]
 
         return_items = [self.id2item[ind] for ind in topKs]
         return return_items
 
-    def run(self, uttr):
-        intent = self._get_intent(uttr)
-        attrs = self._get_attributes(uttr)
-        output = {"intent": intent, "attributes": attrs}
-        return output
+    def run(self, item_list, topK=25):
+        item_recs = self._get_cf_topK(item_list, topK)
+
+        return item_recs
+
+    def get_cosine_sim(self, item):
+        id = self.item2id[item]
+        lst = self.cf_model.get_similar_embedding(id).squeeze()
+        print(lst)
+        return_items = [self.id2item[ind] for ind in lst[:10]]
+        return return_items
 
 
 if __name__ == "__main__":
-    nlu = NLU()
-    print(nlu.run("Is there any chinese menu?"))
-    print(nlu.run("Is there any japanese menu?"))
-    print(nlu.run("I am looking for korean restaurant with descent patio."))
-    print(nlu.run("I am looking for indian restaurant with descent patio."))
+    recommender = Recommender()
 
-    # print(TRAIN_DATA_PATH)
-    # with
-    # path = Path("/home/hojin/code/neureca/neureca/nlu/training/logs/default/version_5/checkpoints")
-    # model = load_model(path)
+    r = pd.read_csv(str(RATINGS_PATH))
+    r = r[r["user_id"] == "4xyYBC5MIe-GfDj6kAdAFw"]
+    v = list(r["name"].unique())
+    v = ["Kekou Gelato House"]
+
+    item_list = recommender.convert_name_to_item(v)
+    recs = recommender.run(item_list)
+    name_recs = recommender.convert_item_to_name(recs)
+    print(name_recs)
+
+    output = recommender.get_cosine_sim(item_list[0])
+    name_recs = recommender.convert_item_to_name(output)
+    print(name_recs)

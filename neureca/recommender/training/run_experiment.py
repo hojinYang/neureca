@@ -57,6 +57,8 @@ def main():
     sample command
     '''
     python neureca/recommender/training/run_experiment.py  --data_class UserBased --model_type cf_models --model_class AE
+    python neureca/recommender/training/run_experiment.py  --data_class UserBased --model_type cf_models --model_class ExplicitAE
+
     """
 
     parser = _setup_parser()

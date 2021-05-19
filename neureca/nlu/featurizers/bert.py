@@ -94,9 +94,10 @@ class Bert:
                 start, end = offsets[i]
                 temp = uttr[start:end]
                 while i + 1 < len(bio_tags) and bio_tags[i + 1] == bio + len(attr_list):
+                    prev_end = end
                     i = i + 1
                     start, end = offsets[i]
-                    temp = temp + uttr[start:end]
+                    temp = temp + (start - prev_end) * " " + uttr[start:end]
 
                 attr = attr_list[bio]
                 if attr not in ret:

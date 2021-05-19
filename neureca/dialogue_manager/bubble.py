@@ -16,6 +16,8 @@ class Bubble:
 
     def start_bubble(self, user_belief):
         box_name = self.set_start_box(user_belief)
+        print(self.box_dict)
+        print(box_name)
         self.cur_box = self.box_dict[box_name]
         output = self.cur_box.start_box(user_belief=user_belief)
         return output
@@ -54,7 +56,7 @@ class Bubble:
             text=text,
             user_belief=user_belief,
             recommender=recommender,
-            expaliner=explainer,
+            explainer=explainer,
         )
 
         bubble_output["utter"] = box_output["utter"]

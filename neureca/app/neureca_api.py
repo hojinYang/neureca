@@ -28,8 +28,8 @@ class NeurecaApi:
                 attributes=nlu_output["attributes"],
                 text=text,
                 user_belief=self.user_belief,
-                recommender={},
-                explainer={},
+                recommender=self.recommender,
+                explainer=self.explainer,
             )
             print(output)
             print(self.user_belief)

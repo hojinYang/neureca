@@ -8,7 +8,7 @@ from pytorch_lightning.core.lightning import LightningModule
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-class AE(LightningModule):
+class ExplicitAE(LightningModule):
     def __init__(self, data_config, args: argparse.Namespace = None):
         super().__init__()
 
@@ -42,10 +42,10 @@ class AE(LightningModule):
 
     def training_step(self, batch, batch_index):
         x, y = batch
-        x[x > 0] = 1.0
-        y[y > 0] = 1.0
-        logits = self(x)
-        loss = F.binary_cross_entropy_with_logits(logits, y, reduction="none").sum(1).mean()
+        # x[x > 0] = 1.0
+        # y[y > 0] = 1.0
+        preds = self(x)
+        loss = F.mse_loss(preds, y, reduction="none").sum(1).mean()
         self.log("train_loss", loss, prog_bar=True)
         return loss
 
@@ -53,21 +53,18 @@ class AE(LightningModule):
         x, y = batch
         y = x + y
 
-        x[x > 0] = 1.0
-        y[y > 0] = 1.0
+        # x[x > 0] = 1.0
+        # y[y > 0] = 1.0
 
-        logits = self(x)
-        loss = F.binary_cross_entropy_with_logits(logits, y, reduction="none").sum(1).mean()
+        preds = self(x)
+        loss = F.mse_loss(preds, y, reduction="none").sum(1).mean()
         self.log("val_loss", loss, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
-        y = x + y
-        x[x > 0] = 1.0
-        y[y > 0] = 1.0
 
-        logits = self(x)
-        loss = F.binary_cross_entropy_with_logits(logits, y, reduction="none").sum(1).mean()
+        preds = self(x)
+        loss = F.mse_loss(preds, y, reduction="none").sum(1).mean()
         self.log("test_loss", loss, prog_bar=True)
 
     @staticmethod

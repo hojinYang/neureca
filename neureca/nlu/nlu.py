@@ -94,12 +94,12 @@ if __name__ == "__main__":
     print(nlu.run("I'm looking for a place for dinner in annex with my girlfriend"))
     print(
         nlu.run(
-            "I'm looking for a place for like BukChangDongSoonTofu for lunch in annex with my girlfriend"
+            "I'm looking for a place for like Buk Chang Dong Soon Tofu for lunch in annex with my girlfriend"
         )
     )
     print(
         nlu.run(
-            "I'm looking for a place for like Buk ChangDongSoonTofu or Sushi on Bloor for family gathering"
+            "I'm looking for a place for like Buk Chang Dong Soon Tofu or Sushi on Bloor for family gathering"
         )
     )
     print(nlu.run("Can you recommend a restaurant for me"))

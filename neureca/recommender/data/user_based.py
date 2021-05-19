@@ -74,6 +74,7 @@ class UserBased(BaseDataModule):
             assigned_set[idx[valid_offset:]] = 2
 
             group["set"] = assigned_set
+
             tr_data.append(group[group["set"] == 0])
             val_data.append(group[group["set"] == 1])
             te_data.append(group[group["set"] == 2])

@@ -1,21 +1,34 @@
 from pathlib import Path
+import pickle
 import pandas as pd
 from summarizers import Summarizers
 from neureca.explainer.utils.parse_attribute import create_db
 
 REVIEW_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "ratings.csv"
 ATTRIBUTE_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "attribute.yaml"
-
+ATTRIBUTE_PICKLE_PATH = (
+    Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "attributes.pkl"
+)
 DB_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "db.csv"
 
 
 class Explainer:
     def __init__(self):
         if not DB_PATH.exists():
-            create_db(REVIEW_PATH, ATTRIBUTE_PATH, DB_PATH)
+            attributes = create_db(REVIEW_PATH, ATTRIBUTE_PATH, DB_PATH)
+            with open(str(ATTRIBUTE_PICKLE_PATH), "wb") as f:
+                pickle.dump(attributes, f)
+
+        with open(str(ATTRIBUTE_PICKLE_PATH), "rb") as f:
+            self.attributes = pickle.load(f)
 
         self.df = pd.read_csv(DB_PATH)
         self.summ = Summarizers()
+
+    def convert_syn_to_attr(self, syn):
+        for a in self.attributes:
+            if a.check(syn):
+                return a.name
 
     def _item_attr_analysis(self, item, attribute_list):
         if not isinstance(attribute_list, list):
@@ -37,9 +50,16 @@ class Explainer:
 
         output = dict()
         for item in item_list:
-            # attr_sentiments = self._item_attr_analysis(item, attribute_list)
+            attr_sentiments = self._item_attr_analysis(item, attribute_list)
+            print(list(attr_sentiments.values()))
 
-            # if None not in attr_sentiments:
+            if None not in attr_sentiments.values():
+                answers = self.answer_question(attribute_list, item)
+                exp = []
+                for k, v in answers.items():
+                    exp.append(v["answer"])
+                return {"rec": item, "exp": exp}
+
             #    # exp = self._summarize(item, attribute_list)
             #    output[item] = exp
 
@@ -52,6 +72,7 @@ class Explainer:
         answer_output = dict()
 
         attr_sent_dict = self._item_attr_analysis(item, attribute_list)
+        print(attr_sent_dict)
 
         for attr in attr_sent_dict:
             answer_output[attr] = {"sentiment": None, "answer": None}
@@ -71,7 +92,10 @@ class Explainer:
 
 if __name__ == "__main__":
     a = Explainer()
-    z = a.answer_question(
-        item="y0QzKWNVoXCbZpk6uhEgGA", attribute_list=["parking", "italian", "date"]
+    z = a.explain_recommendation(
+        item_list=["y0QzKWNVoXCbZpk6uhEgGA"],
+        attribute_list=["parking", "italian", "date", "japanese"],
     )
     print(z)
+    print(a.convert_syn_to_attr("atmosphere"))
+    print(a.convert_syn_to_attr("uber"))

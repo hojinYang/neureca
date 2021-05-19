@@ -19,7 +19,7 @@ class Attribute:
 
     def __init__(self, d: Dict[str, str]):
         self.name = d["attr"]
-        self.syn = d["syn"]
+        self.syn = d.get("syn", [])
         self.regex_exp = r"\b(" + "|".join(w for w in self.syn) + ")" + r"\b"
 
     def check(self, sentence: str) -> bool:
@@ -46,6 +46,9 @@ class AttributeParser:
         self.nlp = English()
 
         self.nlp.add_pipe("sentencizer")
+
+    def get_attr_list(self):
+        return self.attributes
 
     def generate_attribute(self, attribute_path: Path) -> None:
         with open(attribute_path) as f:
@@ -130,5 +133,6 @@ class AttributeParser:
 def create_db(review_path, attribute_path, db_path):
     ap = AttributeParser()
     ap.generate_attribute(attribute_path)
-    db = ap.build_dataset(review_path)
-    db.to_csv(str(db_path), index=False)
+    # db = ap.build_dataset(review_path)
+    # db.to_csv(str(db_path), index=False)
+    return ap.get_attr_list()
