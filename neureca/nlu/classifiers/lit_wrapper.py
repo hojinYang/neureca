@@ -1,38 +1,20 @@
 import argparse
-import numpy as np
-import torch
 from torch.nn import functional as F
-from torch import nn
 import torchmetrics
-import pytorch_lightning as pl
 from pytorch_lightning.core.lightning import LightningModule
 
 
-class MLP(LightningModule):
-    def __init__(self, data_config, args: argparse.Namespace = None):
+class LitWrapper(LightningModule):
+    def __init__(self, model, args: argparse.Namespace = None):
         super().__init__()
 
         self.args = vars(args) if args is not None else {}
-
-        self.input_dim = np.prod(data_config["input_dims"])
-        self.output_dim = data_config["output_dims"]
-        self.batch_size = data_config["batch_size"]
-
-        self.layer1 = nn.Linear(self.input_dim, 32)
-        self.layer2 = nn.Linear(32, self.output_dim)
-
+        self.model = model
         self.valid_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
     def forward(self, x):
-        batch_size = x.shape[0]
-        x = x.view(batch_size, -1)
-        x = self.layer1(x)
-        x = F.relu(x)
-        x = self.layer2(x)
-
-        x = F.log_softmax(x, dim=1)
-        return x
+        self.model(x)
 
     def training_step(self, batch, batch_index):
         x, y = batch
@@ -61,7 +43,3 @@ class MLP(LightningModule):
     def add_to_argparse(parser):
         parser.add_argument("--load_checkpoint", type=bool)
         return parser
-
-    def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-        return optimizer

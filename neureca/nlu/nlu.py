@@ -1,8 +1,9 @@
 import pickle
 from pathlib import Path
-from neureca.nlu.training.run_experiment import _import_class
 import torch
 import numpy as np
+
+from neureca.nlu.training.run_experiment import _import_class
 
 TRAIN_DATA_PATH = (
     Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "train.pkl"

@@ -2,25 +2,23 @@ import argparse
 from typing import Optional
 import pickle
 
-import pytorch_lightning as pl
 import numpy as np
 from sklearn.model_selection import train_test_split
 
 from neureca.nlu.data.base_data_module import BaseDataModule
-from neureca.nlu.data.util import BaseDatasetWithMask
+from neureca.nlu.data.util import BaseDatasetWithMask, get_bio_tags
 
 
 class Attribute(BaseDataModule):
     def __init__(self, featurizer, args: argparse.Namespace = None):
         super().__init__(featurizer, args)
         print("attribute class init")
-        self.input_dims = self.featurizer.feature_dims
 
         with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
             data = pickle.load(f)
 
-        attribute_list = data["attributes"]
-        self.output_dims = len(attribute_list) * 2 + 1
+        self.input_dims = self.featurizer.feature_dims
+        self.output_dims = len(data["attribute_list"]) * 2 + 1
 
     def config(self):
         conf = {
@@ -40,17 +38,14 @@ class Attribute(BaseDataModule):
         with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
             data = pickle.load(f)
 
-        attribute_list = data["attributes"]
-        attribute_mapper = {v: k for k, v in enumerate(attribute_list)}
+        attribute_mapper = {v: k for k, v in enumerate(data["attribute_list"])}
 
         X, y, mask = list(), list(), list()
 
         for datum in data["examples"]:
-            output = self.featurizer.featurize(datum["text"])
+            output = self.featurizer.featurize(datum["text"], use_sentence_emb=False)
 
-            bio_tags = self.featurizer.get_bio_tags(
-                datum["attributes"], attribute_mapper, output["offset_mapping"]
-            )
+            bio_tags = get_bio_tags(datum["attributes"], attribute_mapper, output["offset_mapping"])
             X.append(output["features"])
             y.append(bio_tags)
             mask.append(output["mask"])

@@ -2,17 +2,18 @@ import argparse
 from typing import Optional
 import pickle
 
-import pytorch_lightning as pl
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from neureca.nlu.data.base_data_module import BaseDataModule
-from neureca.nlu.data.util import BaseDataset
+
+from neureca.shared.data import BaseDataModule, BaseDataset
 
 
 class Intent(BaseDataModule):
     def __init__(self, featurizer, args: argparse.Namespace = None):
-        super().__init__(featurizer, args)
+        super().__init__(args)
+        self.featurizer = featurizer
+
         with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
             data = pickle.load(f)
 
@@ -25,13 +26,12 @@ class Intent(BaseDataModule):
         conf = {
             "input_dims": self.input_dims,
             "output_dims": self.output_dims,
-            "batch_size": self.batch_size,
         }
 
         return conf
 
     def prepare_data(self):
-        super().prepare_data()
+
         print("prepare_data")
         if (self.train_data_dirname() / "intent.pkl").exists():
             return

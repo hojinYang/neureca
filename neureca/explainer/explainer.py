@@ -58,6 +58,12 @@ class Explainer:
                 exp = []
                 for k, v in answers.items():
                     exp.append(v["answer"])
+
+                exp = " ".join(exp)
+                print(exp)
+                query = ", ".join(attribute_list)
+                exp = [self.summ(exp, query=query)]
+
                 return {"rec": item, "exp": exp}
 
             #    # exp = self._summarize(item, attribute_list)
@@ -94,7 +100,7 @@ if __name__ == "__main__":
     a = Explainer()
     z = a.explain_recommendation(
         item_list=["y0QzKWNVoXCbZpk6uhEgGA"],
-        attribute_list=["parking", "italian", "date", "japanese"],
+        attribute_list=["italian", "date", "parking"],
     )
     print(z)
     print(a.convert_syn_to_attr("atmosphere"))
