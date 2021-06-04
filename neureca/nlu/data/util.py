@@ -14,57 +14,6 @@ import numpy as np
 SequenceOrTensor = Union[Sequence, torch.tensor]
 
 
-class BaseDatasetWithMask(torch.utils.data.Dataset):
-    """
-    Base Dataset class that simply processes data and targets through optional transforms.
-    Parameters
-    ----------
-    data
-        commonly these are torch tensors, numpy arrays, or PIL Images
-    targets
-        commonly these are torch tensors or numpy arrays
-    transform
-        function that takes a datum and returns the same
-    target_transform
-        function that takes a target and returns the same
-    """
-
-    def __init__(
-        self,
-        data: SequenceOrTensor,
-        targets: SequenceOrTensor,
-        masks: SequenceOrTensor,
-        transform: Callable = None,
-        target_transform: Callable = None,
-    ) -> None:
-        if (len(targets) != len(data)) or (len(targets) != len(masks)) or (len(data) != len(masks)):
-            raise ValueError("Data and targets must be of equal length")
-
-        self.data = data
-        self.targets = targets
-        self.masks = masks
-        self.data_transform = transform
-        self.target_transform = target_transform
-
-    def __len__(self):
-        """Return length of the dataset"""
-        return len(self.data)
-
-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
-        """
-        Return a datum and its target, after processing by trasform function
-        """
-        datum, target, mask = self.data[index], self.targets[index], self.masks[index]
-
-        if self.data_transform is not None:
-            datum = self.data_transform(datum)
-
-        if self.target_transform is not None:
-            target = self.target_transform(target)
-
-        return datum, target, mask
-
-
 class Attribute:
     """
     class Attribute
@@ -168,13 +117,14 @@ class NLUYamlToTrainConverter:
     def convert(self):
         output = list()
 
-        intents, attributes = list(), list()
+        intents, attribute_tags = list(), list()
 
         with open(self.attr_path) as f:
             data_attr = yaml.load(f, Loader=yaml.FullLoader)
 
         for attr in data_attr["attribute"]:
-            attributes.append(attr["attr"])
+            attribute_tags += ["B-" + attr["attr"], "I-" + attr["attr"]]
+        attribute_tags.append("O")
 
         preferences = list(self.attr_dict.keys())
 
@@ -190,8 +140,8 @@ class NLUYamlToTrainConverter:
             intents.append(intent)
 
         ret = {
-            "intent_list": intents,
-            "attribute_list": attributes,
+            "intents": intents,
+            "attribute_tags": attribute_tags,
             "preferences": preferences,
             "examples": output,
         }
@@ -242,45 +192,36 @@ class NLUYamlToTrainConverter:
         return ret
 
 
-# TODO:NEED TO Update
-"""
-def prepare_data(self):
-
-    #self.train_data_dirname().mkdir(exist_ok=True)
-    
-    converter = NLUYamlToTrainConverter(NLU_FILE, ATTRIBUTE_FILE, RATING_FILE)
+def convert_yaml_to_training_data(nlu_file, attr_file, rating_file):
+    converter = NLUYamlToTrainConverter(nlu_file, attr_file, rating_file)
     converter.update_attribute_dict()
     training_data = converter.convert()
-    print(training_data)
-    with open(str(self.train_data_dirname() / "train.pkl"), "wb") as f:
-        pickle.dump(training_data, f)
-"""
+    return training_data
 
 
-def get_bio_tags(attributes, attribute_mapper, offset_mapping):
+def get_bio_tags(attributes, offsets, attribute_tag_mapper):
 
     bio_tags = list()
 
-    for offset in offset_mapping:
-        bio = len(attribute_mapper) * 2
+    for offset in offsets:
+        tag = attribute_tag_mapper["O"]
 
         if offset[1] == 0:
-            bio_tags.append(bio)
+            bio_tags.append(tag)
             continue
 
         for attr in attributes:
             if offset[0] == attr["start_idx"] and offset[1] <= attr["end_idx"]:
-                bio = attribute_mapper[attr["attr_type"]]
+                tag = attribute_tag_mapper["B-" + attr["attr_type"]]
                 break
 
             if offset[0] > attr["start_idx"] and offset[1] <= attr["end_idx"]:
-                bio = attribute_mapper[attr["attr_type"]] + len(attribute_mapper)
+                tag = attribute_tag_mapper["I-" + attr["attr_type"]]
                 break
 
-        bio_tags.append(bio)
+        bio_tags.append(tag)
 
     bio_tags = np.array(bio_tags)
-
     return bio_tags
 
 

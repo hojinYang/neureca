@@ -9,12 +9,13 @@ from torch.utils.data import DataLoader
 
 
 DEMO_DIRNAME = "demo-toronto"
-
 DATA_DIRNAME = Path(__file__).resolve().parents[3] / DEMO_DIRNAME / "data"
-ATTRIBUTE_FILE = DATA_DIRNAME / "attribute.yaml"
-NLU_FILE = DATA_DIRNAME / "nlu.yaml"
-RATING_FILE = DATA_DIRNAME / "ratings.csv"
-PREPROCESSED_DATA_DIRNAME = Path(__file__).resolve().parents[3] / DEMO_DIRNAME / "preprocessed"
+PREPROCESSED_DIRNAME = Path(__file__).resolve().parents[3] / DEMO_DIRNAME / "preprocessed"
+
+ATTRIBUTE_FILENAME = "attribute.yaml"
+NLU_FILENAME = "nlu.yaml"
+RATING_FILENAME = "ratings.csv"
+
 
 RATIO_TRAIN, RATIO_VALID, RATIO_TEST = 0.6, 0.2, 0.2
 BATCH_SIZE = 64
@@ -38,20 +39,21 @@ class BaseDataModule(pl.LightningDataModule):
         self.ratio_test = self.args.get("ratio_test", RATIO_TEST)
         self.num_workers = self.args.get("num_workers", NUM_WORKERS)
 
+        data_dirname = Path(self.args.get("data_dirname", DATA_DIRNAME))
+        self.attribute_path = data_dirname / Path(
+            self.args.get("attribute_filename", ATTRIBUTE_FILENAME)
+        )
+        self.nlu_path = data_dirname / Path(self.args.get("nlu_filename", NLU_FILENAME))
+        self.rating_path = data_dirname / Path(self.args.get("rating_filename", RATING_FILENAME))
+
+        self.prepocessed_dirname = Path(self.args.get("preprocessed_dirname", PREPROCESSED_DIRNAME))
+
         self.input_dims: Tuple[int, ...]
         self.output_dims: Tuple[int, ...]
 
         self.data_train: BaseDataset
         self.data_val: BaseDataset
         self.data_test: BaseDataset
-
-    @classmethod
-    def data_dirname(cls):
-        return DATA_DIRNAME
-
-    @classmethod
-    def preprocessed_data_dirname(cls):
-        return PREPROCESSED_DATA_DIRNAME
 
     @staticmethod
     def add_to_argparse(parser):

@@ -1,63 +1,66 @@
 import argparse
 from typing import Optional
 import pickle
-
+from pathlib import Path
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-from neureca.nlu.data.base_data_module import BaseDataModule
-from neureca.nlu.data.util import BaseDatasetWithMask, get_bio_tags
+from neureca.shared.data import BaseDataset
+from neureca.nlu.data.base_nlu_data import BaseNLUDataModule
+from neureca.nlu.data.util import get_bio_tags
 
 
-class Attribute(BaseDataModule):
+ATTRIBUTE_DATA = "attribute.pkl"
+
+
+class Attribute(BaseNLUDataModule):
     def __init__(self, featurizer, args: argparse.Namespace = None):
-        super().__init__(featurizer, args)
-        print("attribute class init")
+        super().__init__(args)
 
-        with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
-            data = pickle.load(f)
+        attribute_data = Path(self.args.get("attribute_data", ATTRIBUTE_DATA))
+        self.attribute_data_path = self.prepocessed_dirname / attribute_data
+        self.featurizer = featurizer
 
         self.input_dims = self.featurizer.feature_dims
-        self.output_dims = len(data["attribute_list"]) * 2 + 1
+        self.output_dims = self.num_attribute_tags
 
     def config(self):
         conf = {
             "input_dims": self.input_dims,
             "output_dims": self.output_dims,
-            "batch_size": self.batch_size,
         }
 
         return conf
 
     def prepare_data(self):
-        super().prepare_data()
-
-        if (self.train_data_dirname() / "attribute.pkl").exists():
+        if self.attribute_data_path.exists():
             return
 
-        with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
+        with open(str(self.nlu_converted_data_path), "rb") as f:
             data = pickle.load(f)
 
-        attribute_mapper = {v: k for k, v in enumerate(data["attribute_list"])}
+        attribute_tag_mapper = {v: k for k, v in enumerate(data["attribute_tags"])}
 
         X, y, mask = list(), list(), list()
 
         for datum in data["examples"]:
             output = self.featurizer.featurize(datum["text"], use_sentence_emb=False)
 
-            bio_tags = get_bio_tags(datum["attributes"], attribute_mapper, output["offset_mapping"])
+            bio_tags = get_bio_tags(
+                datum["attributes"], output["offset_mapping"], attribute_tag_mapper
+            )
             X.append(output["features"])
             y.append(bio_tags)
             mask.append(output["mask"])
 
         data = {"X": np.array(X), "y": np.array(y), "mask": np.array(mask)}
 
-        with open(str(self.train_data_dirname() / "attribute.pkl"), "wb") as f:
+        with open(str(self.attribute_data_path), "wb") as f:
             pickle.dump(data, f)
 
     def setup(self, stage: Optional[str] = None) -> None:
         print("data setup")
-        with open(str(self.train_data_dirname() / "attribute.pkl"), "rb") as f:
+        with open(str(self.attribute_data_path), "rb") as f:
             data = pickle.load(f)
 
         X, y, mask = data["X"], data["y"], data["mask"]
@@ -76,3 +79,34 @@ class Attribute(BaseDataModule):
         self.data_train = BaseDatasetWithMask(X_train, y_train, mask_train)
         self.data_val = BaseDatasetWithMask(X_val, y_val, mask_val)
         self.data_test = BaseDatasetWithMask(X_test, y_test, mask_test)
+
+
+class BaseDatasetWithMask(BaseDataset):
+    def __init__(
+        self,
+        data,
+        targets,
+        masks,
+        transform,
+        target_transform,
+    ) -> None:
+        super().__init__(data, targets, transform, target_transform)
+
+        if (len(targets) != len(masks)) or (len(data) != len(masks)):
+            raise ValueError("Data and targets must be of equal length")
+
+        self.masks = masks
+
+    def __getitem__(self, index: int):
+        """
+        Return a datum and its target, after processing by trasform function
+        """
+        datum, target, mask = self.data[index], self.targets[index], self.masks[index]
+
+        if self.data_transform is not None:
+            datum = self.data_transform(datum)
+
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return datum, target, mask

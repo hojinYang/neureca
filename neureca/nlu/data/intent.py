@@ -1,26 +1,26 @@
 import argparse
 from typing import Optional
 import pickle
-
+from pathlib import Path
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+from neureca.nlu.data.base_nlu_data import BaseNLUDataModule
+from neureca.shared.data import BaseDataset
 
-from neureca.shared.data import BaseDataModule, BaseDataset
+INTENT_DATA = "intent.pkl"
 
 
-class Intent(BaseDataModule):
+class Intent(BaseNLUDataModule):
     def __init__(self, featurizer, args: argparse.Namespace = None):
         super().__init__(args)
+
+        intent_data = Path(self.args.get("intent_data", INTENT_DATA))
+        self.intent_data_path = self.prepocessed_dirname / intent_data
         self.featurizer = featurizer
 
-        with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
-            data = pickle.load(f)
-
-        intent_list = data["intents"]
-
         self.input_dims = self.featurizer.feature_dims
-        self.output_dims = len(intent_list)
+        self.output_dims = self.num_intents
 
     def config(self):
         conf = {
@@ -31,12 +31,10 @@ class Intent(BaseDataModule):
         return conf
 
     def prepare_data(self):
-
-        print("prepare_data")
-        if (self.train_data_dirname() / "intent.pkl").exists():
+        if self.intent_data_path.exists():
             return
 
-        with open(str(self.train_data_dirname() / "train.pkl"), "rb") as f:
+        with open(str(self.nlu_converted_data_path), "rb") as f:
             data = pickle.load(f)
 
         intent_list = data["intents"]
@@ -47,14 +45,14 @@ class Intent(BaseDataModule):
         )
         y = np.array([intent_mapper[datum["intent"]] for datum in data["examples"]])
 
-        data = {"X": X, "y": y}
+        intent_data = {"X": X, "y": y}
 
-        with open(str(self.train_data_dirname() / "intent.pkl"), "wb") as f:
-            pickle.dump(data, f)
+        with open(str(self.intent_data_path), "wb") as f:
+            pickle.dump(intent_data, f)
 
     def setup(self, stage: Optional[str] = None) -> None:
-        print("data setup")
-        with open(str(self.train_data_dirname() / "intent.pkl"), "rb") as f:
+
+        with open(str(self.intent_data_path), "rb") as f:
             data = pickle.load(f)
 
         X, y = data["X"], data["y"]
