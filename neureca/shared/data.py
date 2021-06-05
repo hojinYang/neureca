@@ -1,5 +1,4 @@
 import argparse
-from abc import abstractmethod
 from pathlib import Path
 import pickle
 from typing import Tuple, Union, Sequence, Callable, Any
@@ -65,7 +64,6 @@ class BaseDataModule(pl.LightningDataModule):
         parser.add_argument("--ratio_test", type=float, default=0.2)
         return parser
 
-    @abstractmethod
     def prepare_data(self):
         raise NotImplementedError
 

@@ -28,14 +28,15 @@ def _setup_parser():
     parser = argparse.ArgumentParser(add_help=False, parents=[trainer_parser])
 
     parser.add_argument("--data_class", type=str)
-    parser.add_argument("--model_type", type=str)
     parser.add_argument("--model_class", type=str)
+    parser.add_argument("--lit_wrapper_class", type=str)
     parser.add_argument("--featurizer_class", type=str)
 
     # Get the data and model classes, so that we can add their specific arguments
     temp_args, _ = parser.parse_known_args()
     data_class = _import_class(f"neureca.nlu.data.{temp_args.data_class}")
-    model_class = _import_class(f"neureca.nlu.{temp_args.model_type}.{temp_args.model_class}")
+    model_class = _import_class(f"neureca.shared.models.{temp_args.model_class}")
+    lit_wrapper_class = _import_class(f"neureca.nlu.lit_wrappers.{temp_args.lit_wrapper_class}")
     feat_class = _import_class(f"neureca.nlu.featurizers.{temp_args.featurizer_class}")
 
     data_group = parser.add_argument_group("Data Args")
@@ -46,6 +47,9 @@ def _setup_parser():
 
     model_group = parser.add_argument_group("Model Args")
     model_class.add_to_argparse(model_group)
+
+    lit_wrapper_group = parser.add_argument_group("Lit Wrapper Args")
+    lit_wrapper_class.add_to_argparse(lit_wrapper_group)
 
     parser.add_argument("--help", "-h", action="help")
 
@@ -65,24 +69,28 @@ def main():
     args = parser.parse_args()
 
     data_class = _import_class(f"neureca.nlu.data.{args.data_class}")
-    model_class = _import_class(f"neureca.nlu.{args.model_type}.{args.model_class}")
+    model_class = _import_class(f"neureca.shared.models.{args.model_class}")
+    lit_wrapper_class = _import_class(f"neureca.nlu.lit_wrappers.{args.lit_wrapper_class}")
     feat_class = _import_class(f"neureca.nlu.featurizers.{args.featurizer_class}")
 
     featurizer = feat_class(args)
     data = data_class(featurizer=featurizer, args=args)
+    model = model_class(data_config=data.config(), args=args)
 
     if args.load_checkpoint is not None:
-        model = model_class.load_from_checkpoint(
-            args.load_checkpoint, data_config=data.config(), args=args
-        )
+        lit_wrapper = lit_wrapper_class(args.load_checkpoint, model=model, args=args)
     else:
-        model = model_class(data_config=data.config(), args=args)
+        lit_wrapper = lit_wrapper_class(model=model, args=args)
+
+    valid_metric = lit_wrapper.get_main_validation_metric()
 
     early_stopping_callback = pl.callbacks.EarlyStopping(
-        monitor="val_loss", mode="min", patience=10
+        monitor=valid_metric["name"], mode=valid_metric["mode"], patience=10
     )
     model_checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        filename="{epoch:03d}-{val_loss:.3f}-{valid_acc_epoch:.3f}", monitor="val_loss", mode="min"
+        filename="{epoch:03d}-{val_loss:.3f}",
+        monitor=valid_metric["name"],
+        mode=valid_metric["mode"],
     )
     callbacks = [early_stopping_callback, model_checkpoint_callback]
     logger = pl.loggers.TensorBoardLogger("neureca/nlu/training/logs")
@@ -95,16 +103,14 @@ def main():
         weights_save_path=Path(__file__).resolve().parents[0] / "logs" / str(args.data_class),
     )
     # pylint: disable=no-member
-    trainer.tune(model, datamodule=data)
-    trainer.fit(model, datamodule=data)
-    trainer.test(model, datamodule=data)
+    trainer.tune(lit_wrapper, datamodule=data)
+    trainer.fit(lit_wrapper, datamodule=data)
+    trainer.test(lit_wrapper, datamodule=data)
     # pylint: enable=no-member
 
     best_model_path = model_checkpoint_callback.best_model_path
     if best_model_path:
         print("Best model saved at:", best_model_path)
-        print(best_model_path)
-        print(Path(best_model_path).resolve().parents[0])
         with open(Path(best_model_path).resolve().parents[0] / "args.pkl", "wb") as f:
             pickle.dump(args, f)
 

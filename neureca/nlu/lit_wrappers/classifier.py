@@ -1,15 +1,13 @@
 import argparse
 from torch.nn import functional as F
 import torchmetrics
-from pytorch_lightning.core.lightning import LightningModule
+from neureca.shared.lit_wrapper import BaseLitWrapper
 
 
-class LitWrapper(LightningModule):
+class Classifier(BaseLitWrapper):
     def __init__(self, model, args: argparse.Namespace = None):
-        super().__init__()
+        super().__init__(model, args)
 
-        self.args = vars(args) if args is not None else {}
-        self.model = model
         self.valid_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
