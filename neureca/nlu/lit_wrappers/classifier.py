@@ -8,7 +8,7 @@ class Classifier(BaseLitWrapper):
     def __init__(self, model, args: argparse.Namespace = None):
         super().__init__(model, args)
 
-        self.valid_acc = torchmetrics.Accuracy()
+        self.val_acc = torchmetrics.Accuracy()
         self.test_acc = torchmetrics.Accuracy()
 
     def forward(self, x):
@@ -28,7 +28,7 @@ class Classifier(BaseLitWrapper):
         self.log("val_loss", loss, prog_bar=True)
 
         self.valid_acc(logits.exp(), y)
-        self.log("valid_acc", self.valid_acc, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("val_acc", self.valid_acc, on_step=True, on_epoch=True, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
@@ -36,6 +36,9 @@ class Classifier(BaseLitWrapper):
 
         self.test_acc(logits.exp(), y)
         self.log("test_acc", self.test_acc, on_step=True, on_epoch=True, prog_bar=True)
+
+    def get_main_validation_metric(self):
+        return {"name": "val_acc", "mode": "max"}
 
     @staticmethod
     def add_to_argparse(parser):

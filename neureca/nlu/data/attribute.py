@@ -21,13 +21,13 @@ class Attribute(BaseNLUDataModule):
         self.attribute_data_path = self.prepocessed_dirname / attribute_data
         self.featurizer = featurizer
 
-        self.input_dims = self.featurizer.feature_dims
-        self.output_dims = self.num_attribute_tags
+        self.input_dim = self.featurizer.feature_dims
+        self.output_dim = self.num_attribute_tags
 
     def config(self):
         conf = {
-            "input_dims": self.input_dims,
-            "output_dims": self.output_dims,
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
         }
 
         return conf

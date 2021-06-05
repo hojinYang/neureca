@@ -9,8 +9,8 @@ BERT_DIM = 768
 
 class Bert(BaseFeaturizer):
     def __init__(self, args: argparse.Namespace = None):
-        self.args = vars(args) if args is not None else {}
-        self.max_length = self.args.get("max_length")
+        super().__init__(args=args)
+
         self.tokenizer = DistilBertTokenizerFast.from_pretrained("distilbert-base-uncased")
         self.model = DistilBertModel.from_pretrained("distilbert-base-uncased")
         self.model.eval()

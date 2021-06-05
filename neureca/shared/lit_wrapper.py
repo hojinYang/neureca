@@ -22,6 +22,9 @@ class BaseLitWrapper(LightningModule):
     def test_step(self, batch, batch_idx):
         raise NotImplementedError
 
+    def get_main_validation_metric(self):
+        raise NotImplementedError
+
     @staticmethod
     def add_to_argparse(parser):
         parser.add_argument("--load_checkpoint", type=bool)

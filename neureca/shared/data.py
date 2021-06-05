@@ -47,8 +47,8 @@ class BaseDataModule(pl.LightningDataModule):
 
         self.prepocessed_dirname = Path(self.args.get("preprocessed_dirname", PREPROCESSED_DIRNAME))
 
-        self.input_dims: Tuple[int, ...]
-        self.output_dims: Tuple[int, ...]
+        self.input_dim: Tuple[int, ...]
+        self.output_dim: Tuple[int, ...]
 
         self.data_train: BaseDataset
         self.data_val: BaseDataset

@@ -61,7 +61,7 @@ def main():
     Run an experiment
     sample command
     '''
-    python neureca/nlu/training/run_experiment.py  --data_class Intent --featurizer_class Bert --model_type classifiers --model_class MLP
+    python neureca/nlu/training/run_experiment.py  --data_class Intent --featurizer_class Bert --model_class MLP --lit_wrapper_class Classifier
     python neureca/nlu/training/run_experiment.py  --data_class Attribute --featurizer_class Bert --sequence True --model_type recognizers --model_class LSTMCRF
     """
 

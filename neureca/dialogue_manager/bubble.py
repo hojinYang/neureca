@@ -5,32 +5,28 @@ CHANGE_BUBBLE = 0
 
 class Bubble:
     def __init__(self, box_list):
-        self.out_bubble = None
-
         self.box_dict = {box.get_name(): box for box in box_list}
+        self.out_bubble = None
         self.cur_box = None
-
         self.num_visited = 0
         self.bubble_state = False
         self.next_bubble = None
 
-    def start_bubble(self, user_belief):
-        box_name = self.set_start_box(user_belief)
-        print(self.box_dict)
-        print(box_name)
-        self.cur_box = self.box_dict[box_name]
-        output = self.cur_box.start_box(user_belief=user_belief)
-        return output
-
     def set_start_box(self, user_belief):
-        pass
+        raise NotImplementedError
 
     def get_next_box(self, user_belief) -> str:
         """
         - User should implement this part
         - implement box change logic based on user belief state
         """
-        pass
+        raise NotImplementedError
+
+    def start_bubble(self, user_belief):
+        box_name = self.set_start_box(user_belief)
+        self.cur_box = self.box_dict[box_name]
+        output = self.cur_box.start_box(user_belief=user_belief)
+        return output
 
     def set_next_bubble(self, bubble):
         self.next_bubble = bubble

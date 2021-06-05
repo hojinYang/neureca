@@ -22,7 +22,7 @@ class Box:
         return output
 
     def apply_box(self, intent, attributes, text, user_belief, recommender, explainer):
-        pass
+        raise NotImplementedError
 
     def _action_start(self, user_belief):
-        pass
+        raise NotImplementedError

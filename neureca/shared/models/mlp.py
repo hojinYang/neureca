@@ -14,7 +14,7 @@ class MLP(BaseModel):
         mlp_dropout = self.args.get("mlp_dropout", MLP_DROPOUT)
         if isinstance(mlp_dims, int):
             mlp_dims = [mlp_dims]
-        mlp_dims = self.input_dim + mlp_dims + self.output_dim
+        mlp_dims = self.input_dims + mlp_dims + self.output_dims
 
         self.layers = nn.ModuleList()
         for i, (d_in, d_out) in enumerate(zip(self.enc_dims[:-1], self.enc_dims[1:])):
