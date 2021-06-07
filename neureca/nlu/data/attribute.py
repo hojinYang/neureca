@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 
 from neureca.shared.data import BaseDataset
 from neureca.nlu.data.base_nlu_data import BaseNLUDataModule
-from neureca.nlu.data.util import get_bio_tags
+from neureca.nlu.data.utils import get_bio_tags
 
 
 ATTRIBUTE_DATA = "attribute.pkl"
@@ -26,8 +26,8 @@ class Attribute(BaseNLUDataModule):
 
     def config(self):
         conf = {
-            "input_dim": self.input_dim,
-            "output_dim": self.output_dim,
+            "input_dims": self.input_dim,
+            "output_dims": self.output_dim,
         }
 
         return conf
@@ -87,8 +87,8 @@ class BaseDatasetWithMask(BaseDataset):
         data,
         targets,
         masks,
-        transform,
-        target_transform,
+        transform=None,
+        target_transform=None,
     ) -> None:
         super().__init__(data, targets, transform, target_transform)
 

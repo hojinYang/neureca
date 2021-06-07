@@ -14,14 +14,16 @@ class MLP(BaseModel):
         mlp_dropout = self.args.get("mlp_dropout", MLP_DROPOUT)
         if isinstance(mlp_dims, int):
             mlp_dims = [mlp_dims]
-        mlp_dims = self.input_dims + mlp_dims + self.output_dims
+        print(self.input_dims, self.output_dims)
+        mlp_dims = [self.input_dims] + mlp_dims + [self.output_dims]
 
         self.layers = nn.ModuleList()
-        for i, (d_in, d_out) in enumerate(zip(self.enc_dims[:-1], self.enc_dims[1:])):
+        for i, (d_in, d_out) in enumerate(zip(mlp_dims[:-1], mlp_dims[1:])):
             self.layers.append(nn.Dropout(mlp_dropout))
             self.layers.append(nn.Linear(d_in, d_out))
-            if i != len(mlp_dims) - 1:
+            if i != len(mlp_dims) - 2:
                 self.layers.append(nn.ReLU())
+        print(self.layers)
 
     def forward(self, x):
         batch_size = x.shape[0]

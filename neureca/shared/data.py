@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader
 
 
 DEMO_DIRNAME = "demo-toronto"
-DATA_DIRNAME = Path(__file__).resolve().parents[3] / DEMO_DIRNAME / "data"
-PREPROCESSED_DIRNAME = Path(__file__).resolve().parents[3] / DEMO_DIRNAME / "preprocessed"
+DATA_DIRNAME = Path(__file__).resolve().parents[2] / DEMO_DIRNAME / "data"
+PREPROCESSED_DIRNAME = Path(__file__).resolve().parents[2] / DEMO_DIRNAME / "preprocessed"
 
 ATTRIBUTE_FILENAME = "attribute.yaml"
 NLU_FILENAME = "nlu.yaml"
@@ -54,16 +54,6 @@ class BaseDataModule(pl.LightningDataModule):
         self.data_val: BaseDataset
         self.data_test: BaseDataset
 
-    @staticmethod
-    def add_to_argparse(parser):
-        parser.add_argument("--batch_size", type=int, default=BATCH_SIZE)
-        parser.add_argument("--on_gpu", type=int)
-        parser.add_argument("--num_workers", type=int, default=1)
-        parser.add_argument("--ratio_train", type=float, default=0.6)
-        parser.add_argument("--ratio_valid", type=float, default=0.2)
-        parser.add_argument("--ratio_test", type=float, default=0.2)
-        return parser
-
     def prepare_data(self):
         raise NotImplementedError
 
@@ -93,6 +83,16 @@ class BaseDataModule(pl.LightningDataModule):
             num_workers=self.num_workers,
             pin_memory=self.on_gpu,
         )
+
+    @staticmethod
+    def add_to_argparse(parser):
+        parser.add_argument("--batch_size", type=int, default=BATCH_SIZE)
+        parser.add_argument("--on_gpu", type=int)
+        parser.add_argument("--num_workers", type=int, default=1)
+        parser.add_argument("--ratio_train", type=float, default=0.6)
+        parser.add_argument("--ratio_valid", type=float, default=0.2)
+        parser.add_argument("--ratio_test", type=float, default=0.2)
+        return parser
 
 
 class BaseDataset(torch.utils.data.Dataset):

@@ -3,7 +3,7 @@ from pathlib import Path
 import pickle
 
 from neureca.shared.data import BaseDataModule
-from neureca.nlu.data.util import convert_yaml_to_training_data
+from neureca.nlu.data.utils import convert_yaml_to_training_data
 
 NLU_CONVERTED_FILENAME = "nlu_converted.pkl"
 
@@ -17,9 +17,9 @@ class BaseNLUDataModule(BaseDataModule):
         self.nlu_converted_data_path = self.prepocessed_dirname / nlu_converted_filename
         self.num_intents: int
         self.num_attribute_tags: int
-        self.prepare_data()
+        self._prepare_data()
 
-    def prepare_data(self):
+    def _prepare_data(self):
         if self.nlu_converted_data_path.exists():
             with open(str(self.nlu_converted_data_path), "rb") as f:
                 nlu_converted_data = pickle.load(f)
@@ -27,6 +27,7 @@ class BaseNLUDataModule(BaseDataModule):
                 self.num_attribute_tags = len(nlu_converted_data["attribute_tags"])
             return
 
+        self.nlu_converted_data_path.resolve().parents[0].mkdir(exist_ok=True)
         nlu_converted_data = convert_yaml_to_training_data(
             self.nlu_path, self.attribute_path, self.rating_path
         )
