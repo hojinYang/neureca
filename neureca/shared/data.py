@@ -89,9 +89,14 @@ class BaseDataModule(pl.LightningDataModule):
         parser.add_argument("--batch_size", type=int, default=BATCH_SIZE)
         parser.add_argument("--on_gpu", type=int)
         parser.add_argument("--num_workers", type=int, default=1)
-        parser.add_argument("--ratio_train", type=float, default=0.6)
-        parser.add_argument("--ratio_valid", type=float, default=0.2)
-        parser.add_argument("--ratio_test", type=float, default=0.2)
+        parser.add_argument("--ratio_train", type=float, default=RATIO_TRAIN)
+        parser.add_argument("--ratio_valid", type=float, default=RATIO_VALID)
+        parser.add_argument("--ratio_test", type=float, default=RATIO_TEST)
+        parser.add_argument("--data_dirname", type=str, default=DATA_DIRNAME)
+        parser.add_argument("--attribute_filename", type=str, default=ATTRIBUTE_FILENAME)
+        parser.add_argument("--nlu_filename", type=str, default=NLU_FILENAME)
+        parser.add_argument("--rating_filename", type=str, default=RATING_FILENAME)
+        parser.add_argument("--preprocessed_dirname", type=str, default=PREPROCESSED_DIRNAME)
         return parser
 
 
