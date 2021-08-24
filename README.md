@@ -2,21 +2,21 @@
 
 This repository contains source code for Neureca💡 project. Neureca💡 is a framework for building conversational recommender (ConvRec) systems. It is also an open-source project that helps any ML researchers develop ConvRec system and contribute to key components easily. Neureca💡 is still under development stage.
 
-## installation
+## Installation
 
 ```
 pip install neureca
 ```
 
-## usage
-1. train NLU model(i.e. intent recognizer, item attribute recognizer) and Recommender model using your own dataset
+## Usage
+1. Train NLU model(i.e. intent recognizer, item attribute recognizer) and Recommender model using your own dataset
 
 ```
 neureca-train intent  
 neureca-train attribute 
 nuereca-train recommender
 ```
-2. create main.py under your project directory
+2. Create main.py under your project directory
 
 
 
@@ -43,7 +43,7 @@ neureca = Neureca(
 if __name__ == '__main__':
     neureca.run(env="cli")  # env: cli or web
 ```
-3. run neureca
+3. Run neureca
 ```
 python main.py
 ```
@@ -54,3 +54,21 @@ Also, Neureca also supports web interface: `neureca.run(env="web")`
 ![chat](./example_web.png)
 
 For more information, please visit [docs](./docs).
+
+## License
+
+```
+Copyright 2021 Hojin Yang
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
