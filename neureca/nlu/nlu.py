@@ -30,6 +30,17 @@ def _load_model(args_and_cpkt_path: Path):
     return lit_wrapper, featurizer, args
 
 
+class NLUOutput:
+    def __init__(self, uttr, intent, attributes, items):
+        self.intent = intent
+        self.uttr = uttr
+        self.attributes = attributes
+        self.items = items
+
+    def __str__(self):
+        return f"intent-> {self.intent}\n attributes-> {self.attributes}\n itmes-> {self.items} \n uttr-> {self.uttr}"
+
+
 class NLU:
     def __init__(
         self, intent_version: Optional[str] = None, attribute_version: Optional[str] = None
@@ -81,7 +92,7 @@ class NLU:
         self.intent_model, self.intent_feat, self.intent_args = _load_model(intent_path)
         self.attribute_model, self.attribute_feat, self.attribute_args = _load_model(attribute_path)
 
-    def run(self, uttr):
+    def run(self, uttr: str) -> NLUOutput:
         intent = self._get_intent(uttr)
         attrs, items = self._get_attributes(uttr)
         output = NLUOutput(uttr, intent, attrs, items)
@@ -110,14 +121,3 @@ class NLU:
         items = attrs.pop(self.item_name, None)
 
         return attrs, items
-
-
-class NLUOutput:
-    def __init__(self, uttr, intent, attributes, items):
-        self.intent = intent
-        self.uttr = uttr
-        self.attributes = attributes
-        self.items = items
-
-    def __str__(self):
-        return f"intent-> {self.intent}\n attributes-> {self.attributes}\n itmes-> {self.items} \n uttr-> {self.uttr}"

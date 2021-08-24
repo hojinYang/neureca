@@ -50,7 +50,7 @@ python main.py
 
 ![chat](./example.png)
 
-Also, Neureca also supports web interface: `neureca.run(env="web")`
+In addtion, Neureca supports web interface: `neureca.run(env="web")`
 ![chat](./example_web.png)
 
 For more information, please visit [docs](./docs).
