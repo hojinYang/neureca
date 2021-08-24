@@ -31,7 +31,7 @@ recommender = Recommender()
 explainer = Explainer()
 dialogue_manager = Manager(initial_stage=greeting_stage)
 
-#create nureca instance
+#create neureca instance
 neureca = Neureca(
     nlu=nlu,
     recommender=recommender,
