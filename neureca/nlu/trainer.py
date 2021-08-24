@@ -53,8 +53,9 @@ def main():
     Run an experiment
     sample command
     '''
-    python neureca/nlu/trainer.py  --data_class Intent --featurizer_class Bert --model_class MLP --lit_wrapper_class Classifier --demo_path demo-toronto
-    python neureca/nlu/trainer.py  --data_class Attribute --featurizer_class Bert --model_class LSTM --lit_wrapper_class CRFRecognizer --demo_path demo-toronto
+    python neureca/nlu/trainer.py  --data_class Intent --featurizer_class Bert --model_class MLP --lit_wrapper_class Classifier --path /home/hojin/code/neureca/demo-toronto --use_sentence_emb True
+    python neureca/nlu/trainer.py  --data_class Attribute --featurizer_class Bert --model_class LSTM --lit_wrapper_class CRFRecognizer --path /home/hojin/code/neureca/demo-toronto
+    python cmd.py  --data_class Intent --featurizer_class Bert --model_class MLP --lit_wrapper_class Classifier --path /home/hojin/code/neureca/demo-toronto --use_sentence_emb True
     """
 
     parser = _setup_parser()
@@ -85,7 +86,7 @@ def main():
         mode=val_metric["mode"],
     )
     callbacks = [early_stopping_callback, model_checkpoint_callback]
-    log_path = Path(args.demo_path) / "weights"
+    log_path = Path(args.path) / "weights"
     logger = pl.loggers.TensorBoardLogger(log_path, name=str(args.data_class))
 
     args.weights_summary = "full"  # Print full summary of the model
@@ -102,7 +103,7 @@ def main():
     # pylint: enable=no-member
 
     best_model_path = model_checkpoint_callback.best_model_path
-    print(best_model_path)
+
     if best_model_path:
         print("Best model saved at:", best_model_path)
         with open(Path(best_model_path).resolve().parents[1] / "args.pkl", "wb") as f:

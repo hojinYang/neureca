@@ -1,15 +1,13 @@
 import argparse
 from pathlib import Path
-import pickle
 from typing import Tuple, Union, Sequence, Callable, Any
 import pytorch_lightning as pl
 import torch
 from torch.utils.data import DataLoader
 
 
-DEMO_DIRNAME = "demo-toronto"
-DATA_DIRNAME = Path(__file__).resolve().parents[2] / DEMO_DIRNAME / "data"
-PREPROCESSED_DIRNAME = Path(__file__).resolve().parents[2] / DEMO_DIRNAME / "preprocessed"
+DATA_DIRNAME = "data"
+PREPROCESSED_DIRNAME = "preprocessed"
 
 ATTRIBUTE_FILENAME = "attribute.yaml"
 NLU_FILENAME = "nlu.yaml"
@@ -38,14 +36,12 @@ class BaseDataModule(pl.LightningDataModule):
         self.ratio_test = self.args.get("ratio_test", RATIO_TEST)
         self.num_workers = self.args.get("num_workers", NUM_WORKERS)
 
-        data_dirname = Path(self.args.get("data_dirname", DATA_DIRNAME))
-        self.attribute_path = data_dirname / Path(
-            self.args.get("attribute_filename", ATTRIBUTE_FILENAME)
-        )
-        self.nlu_path = data_dirname / Path(self.args.get("nlu_filename", NLU_FILENAME))
-        self.rating_path = data_dirname / Path(self.args.get("rating_filename", RATING_FILENAME))
-
-        self.prepocessed_dirname = Path(self.args.get("preprocessed_dirname", PREPROCESSED_DIRNAME))
+        path = Path(self.args.get("path"))
+        data_dirname = path / DATA_DIRNAME
+        self.attribute_path = data_dirname / ATTRIBUTE_FILENAME
+        self.nlu_path = data_dirname / NLU_FILENAME
+        self.rating_path = data_dirname / RATING_FILENAME
+        self.prepocessed_dirname = path / PREPROCESSED_DIRNAME
 
         self.input_dim: Tuple[int, ...]
         self.output_dim: Tuple[int, ...]
@@ -92,11 +88,7 @@ class BaseDataModule(pl.LightningDataModule):
         parser.add_argument("--ratio_train", type=float, default=RATIO_TRAIN)
         parser.add_argument("--ratio_valid", type=float, default=RATIO_VALID)
         parser.add_argument("--ratio_test", type=float, default=RATIO_TEST)
-        parser.add_argument("--data_dirname", type=str, default=DATA_DIRNAME)
-        parser.add_argument("--attribute_filename", type=str, default=ATTRIBUTE_FILENAME)
-        parser.add_argument("--nlu_filename", type=str, default=NLU_FILENAME)
-        parser.add_argument("--rating_filename", type=str, default=RATING_FILENAME)
-        parser.add_argument("--preprocessed_dirname", type=str, default=PREPROCESSED_DIRNAME)
+        parser.add_argument("--path", type=str, default=str(Path.cwd()))
         return parser
 
 

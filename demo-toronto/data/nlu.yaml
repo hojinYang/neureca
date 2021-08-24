@@ -41,3 +41,42 @@ nlu:
     - "[*]{location}"
     - "[*]{occasion}"
     - "[place_name]{place_name}"
+
+- intent: POSITIVE
+  examples:
+    - "sounds great! please go ahead."
+    - "sure, i like it"
+    - "of course, thanks for doing that"
+    - "yeah sounds great!"
+    - "yes"
+    - "nice"
+    - "i'm looking forward to doing that"
+    - "sounds great!"
+    - "wonderful"
+    - "please"
+    - "good"
+    - "sounds good"
+    - "excellent"
+    - "great! I'll take it"
+    - "you can say that again"
+
+- intent: NEGATIVE
+  examples:
+    - "No not really"
+    - "hmm I don't like it"
+    - "hmm not sure."
+    - "I don't buy it"
+    - "well, not really"
+    - "sorry, i don't like it"
+    - "i don't have preference"
+    - "actually i don't have any preference"
+    - "actually i don't have preference"
+
+- intent: GREETING
+  examples:
+    - "Hi, glad to meet you"
+    - "Hello Neureca"
+    - "Hi, i'm good thanks!"
+    - "good afternoon!"
+    - "nice to see you"
+    - "nice to chat with you" 

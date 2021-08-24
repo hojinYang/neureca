@@ -85,6 +85,7 @@ class NLUYamlToTrainConverter:
         self.attr_path: Path = attr_path
         self.rating_path: Path = rating_path
         self.attr_dict: Dict[str, Attribute] = dict()
+        self.item_name: str
 
     def update_attribute_dict(self) -> None:
 
@@ -103,6 +104,7 @@ class NLUYamlToTrainConverter:
             attr["syn"] = item_names
 
             attr_cls = Attribute(attr)
+            self.item_name = attr["attr"]
 
         elif "sub-attr" not in attr:
             attr_cls = Attribute(attr)
@@ -145,6 +147,7 @@ class NLUYamlToTrainConverter:
             "attribute_tags": attribute_tags,
             "preferences": preferences,
             "examples": output,
+            "item_name": self.item_name,
         }
 
         return ret

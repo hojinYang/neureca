@@ -36,3 +36,8 @@ class BaseNLUDataModule(BaseDataModule):
 
         with open(str(self.nlu_converted_data_path), "wb") as f:
             pickle.dump(nlu_converted_data, f)
+
+    @staticmethod
+    def add_to_argparse(parser):
+        parser = BaseDataModule.add_to_argparse(parser)
+        return parser

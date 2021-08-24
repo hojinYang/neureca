@@ -76,7 +76,7 @@ class Intent(BaseNLUDataModule):
 
     @staticmethod
     def add_to_argparse(parser):
-        parser = BaseNLUDataModule.add_argparse_args(parser)
+        parser = BaseNLUDataModule.add_to_argparse(parser)
         parser.add_argument("--intent_data", type=str, default=INTENT_DATA)
         parser.add_argument("--use_sentence_emb", type=bool, default=USE_SENTENCE_EMB)
         return parser

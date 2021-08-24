@@ -1,26 +1,26 @@
+from typing import List
+from neureca.dialogue_manager import Stage, UserBelief
+from neureca.nlu.nlu import NLUOutput
+
+
 class Manager:
-    def __init__(self, initial_bubble):
+    def __init__(self, initial_stage: Stage):
 
-        self.cur_bubble = initial_bubble
+        self.current_stage = initial_stage
 
-    def start_manager(self, user_belief):
-        return self.cur_bubble.start_bubble(user_belief=user_belief)
+    def start_manager(self, user_belief: UserBelief) -> List[str]:
+        utter = self.current_stage.start_stage(user_belief=user_belief)
+        return utter
 
-    def apply(self, intent, attributes, text, user_belief, recommender, explainer):
-        output = self.cur_bubble.apply_bubble(
-            intent=intent,
-            attributes=attributes,
+    def apply(self, text: NLUOutput, user_belief: UserBelief) -> List[str]:
+        utter = self.current_stage.apply(
             text=text,
             user_belief=user_belief,
-            recommender=recommender,
-            explainer=explainer,
         )
-        print(user_belief)
 
-        if output["change_bubble"] == True:
+        if self.current_stage.is_stage_completed():
+            self.current_stage = self.current_stage.next_stage
+            start_utter = self.current_stage.start_stage(user_belief=user_belief)
+            utter += start_utter
 
-            self.cur_bubble = self.cur_bubble.get_next_bubble()
-            start_utter = self.cur_bubble.start_bubble(user_belief=user_belief)
-            output["utter"] += start_utter["utter"]
-
-        return output
+        return utter

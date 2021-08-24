@@ -134,5 +134,6 @@ dmypy.json
 
 demo-toronto/preprocessed/*
 demo-toronto/data/ratings.csv
+demo-toronto/weights
 neureca/recommender/training/logs/*
 neureca/nlu/training/logs/*

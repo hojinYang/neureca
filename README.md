@@ -1,30 +1,56 @@
 # <center>Neureca💡 for Conversational Recommender Systems</center>
 
-This repository contains source code for Neureca💡 project. Neureca💡 is a framework for building conversational recommender (ConvRec) systems. It is also an open-source project that helps any ML researchers develop ConvRec system and contribute to key components easily.
+This repository contains source code for Neureca💡 project. Neureca💡 is a framework for building conversational recommender (ConvRec) systems. It is also an open-source project that helps any ML researchers develop ConvRec system and contribute to key components easily. Neureca💡 is still under development stage.
 
-
-- Neureca💡 is still under development stage: the timeline for the demo of verion 0.0X would be around late May - early June.
-- At this moment, I set Neureca💡 repository as a personal repo under my github account. I'll transfer this repo to another orgnaization github (either D3M or independent org only for this project) in the future when development has progressed to some extent. 
-- Neureca💡 is temporarily named(as an acronym of NEUral REcommender for Conversational Assistant). Please let me know if you have any other good ideas!
+## installation
 
 ```
-.
-├── demo-toronto
-│   ├── application.py
-│   ├── data
-│   ├── dialogue_manager
-│   └── preprocessed
-├── neureca
-│   ├── app
-│   ├── dialogue_manager
-│   ├── explainer
-│   ├── nlu
-│   └── recommender
-└── README.md
+pip install neureca
 ```
 
-We can see that the main breakdown of the codebase is between `neureca` and `demo-toronto`.
+## usage
+1. train NLU model(i.e. intent recognizer, item attribute recognizer) and Recommender model using your own dataset
 
-The former, `neureca`, should be thought of as a Python package that we are developing and will eventually deploy in some way. More information about `neureca` directory can be found in [here](/neureca).
+```
+neureca-train intent  
+neureca-train attribute 
+nuereca-train recommender
+```
+2. create main.py under your project directory
 
-The latter, `demo-toronto`, should be thought of as a demo ConvRec project using Neureca api on `yelp-toronto` review dataset. 
+
+
+```python
+from pathlib import Path
+from neureca import Neureca, NLU, Recommender, Explainer, Manager
+from stages import greeting_stage
+
+# load the latest trained version of each model if version is not speicfied in arguament
+nlu = NLU()  
+recommender = Recommender()
+explainer = Explainer()
+dialogue_manager = Manager(initial_stage=greeting_stage)
+
+#create nureca instance
+neureca = Neureca(
+    nlu=nlu,
+    recommender=recommender,
+    explainer=explainer,
+    dialogue_manager=dialogue_manager,
+    path=Path.cwd(),
+)
+
+if __name__ == '__main__':
+    neureca.run(env="cli")  # env: cli or web
+```
+3. run neureca
+```
+python main.py
+```
+
+![chat](./example.png)
+
+Also, Neureca also supports web interface: `neureca.run(env="web")`
+![chat](./example_web.png)
+
+For more information, please visit [docs](./docs).

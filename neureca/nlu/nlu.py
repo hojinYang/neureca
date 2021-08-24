@@ -1,12 +1,13 @@
+from typing import Optional
 import pickle
 from pathlib import Path
 import torch
 import numpy as np
-from neureca.shared.utils import import_class
+from neureca.shared.utils import import_class, find_latest_subdir
 from neureca.nlu.data.utils import convert_uttr_to_attr_dict
 
 
-def load_model(args_and_cpkt_path: Path):
+def _load_model(args_and_cpkt_path: Path):
 
     with open(str(args_and_cpkt_path / "args.pkl"), "rb") as f:
         args = pickle.load(f)
@@ -30,24 +31,61 @@ def load_model(args_and_cpkt_path: Path):
 
 
 class NLU:
-    def __init__(self, demo_path: Path, intent_version: str, attribute_version: str):
-        nlu_converted_data_path = demo_path / "preprocessed" / "nlu_converted.pkl"
+    def __init__(
+        self, intent_version: Optional[str] = None, attribute_version: Optional[str] = None
+    ):
+        self._intent_version = intent_version
+        self._attribute_version = attribute_version
+
+    def load_model(self, path: Path):
+
+        nlu_converted_data_path = path / "preprocessed" / "nlu_converted.pkl"
+        if not nlu_converted_data_path.exists():
+            raise FileNotFoundError("NLU preprocessed file is not found... Train nlu model first.")
+
         with open(str(nlu_converted_data_path), "rb") as f:
             nlu_converted_data = pickle.load(f)
         self.intents = nlu_converted_data["intents"]
         self.attribute_tags = nlu_converted_data["attribute_tags"]
+        self.item_name = nlu_converted_data["item_name"]
 
-        intent_path = demo_path / "weights" / "Intent" / intent_version
-        attribute_path = demo_path / "weights" / "Attribute" / attribute_version
+        intent_path = path / "weights" / "Intent"
+        if not intent_path.exists():
+            raise FileNotFoundError(
+                "Intent dir is not found... Train intent classification model first."
+            )
 
-        self.intent_model, self.intent_feat, self.intent_args = load_model(intent_path)
-        self.attribute_model, self.attribute_feat, self.attribute_args = load_model(attribute_path)
+        if self._intent_version is None:
+            self._intent_version = find_latest_subdir(intent_path)
+            print(
+                f"The latest version of intent model({self._intent_version}) is loaded as its version is not specified."
+            )
+        intent_path = intent_path / self._intent_version
+        if not intent_path.exists():
+            raise FileNotFoundError(f"{intent_path} is not found.")
+
+        attribute_path = path / "weights" / "Attribute"
+        if not attribute_path.exists():
+            raise FileNotFoundError(
+                "Attribute dir is not found... Train attribute recognizer model first."
+            )
+        if self._attribute_version is None:
+            self._attribute_version = find_latest_subdir(attribute_path)
+            print(
+                f"The latest version of attribute model({self._attribute_version}) is loaded as its version is not specified."
+            )
+        attribute_path = attribute_path / self._attribute_version
+        if not intent_path.exists():
+            raise FileNotFoundError(f"{attribute_path} is not found.")
+
+        self.intent_model, self.intent_feat, self.intent_args = _load_model(intent_path)
+        self.attribute_model, self.attribute_feat, self.attribute_args = _load_model(attribute_path)
 
     def run(self, uttr):
         intent = self._get_intent(uttr)
-        attrs = self._get_attributes(uttr)
-        output = {"uttr": uttr, "intent": intent, "attributes": attrs}
-
+        attrs, items = self._get_attributes(uttr)
+        output = NLUOutput(uttr, intent, attrs, items)
+        # print(output)
         return output
 
     def _get_intent(self, uttr):
@@ -68,34 +106,18 @@ class NLU:
         offsets = output["offset_mapping"]
 
         bio_tags = self.attribute_model.decode(torch.tensor([feats]), torch.tensor([mask]))[0]
-        ret = convert_uttr_to_attr_dict(uttr, bio_tags, offsets, self.attribute_tags)
+        attrs = convert_uttr_to_attr_dict(uttr, bio_tags, offsets, self.attribute_tags)
+        items = attrs.pop(self.item_name, None)
 
-        return ret
-
-
-DEMO_PATH = Path(__file__).resolve().parents[2] / "demo-toronto"
-INTENT_VERSION = "version_1"
-ATTRIBUTE_VERSION = "version_2"
+        return attrs, items
 
 
-if __name__ == "__main__":
-    nlu = NLU(DEMO_PATH, INTENT_VERSION, ATTRIBUTE_VERSION)
-    print(nlu.run("Is there any chinese menu?"))
-    print(nlu.run("Is there any japanese menu?"))
-    print(nlu.run("I am looking for korean restaurant with descent patio."))
-    print(nlu.run("I'm looking for a place for dinner in annex with my girlfriend"))
-    print(
-        nlu.run(
-            "I'm looking for a place for like Buk Chang Dong Soon Tofu for lunch in annex with my girlfriend"
-        )
-    )
-    print(
-        nlu.run(
-            "I'm looking for a place for like Buk Chang Dong Soon Tofu or Sushi on Bloor for family gathering"
-        )
-    )
-    print(nlu.run("Can you recommend a restaurant for me"))
-    print(nlu.run("You know, sushi is always right"))
-    print(nlu.run("You know, korean food is always right"))
-    print(nlu.run("You know, coffee is always right"))
-    print(nlu.run("I like the place like Tim Hortons or Starbucks"))
+class NLUOutput:
+    def __init__(self, uttr, intent, attributes, items):
+        self.intent = intent
+        self.uttr = uttr
+        self.attributes = attributes
+        self.items = items
+
+    def __str__(self):
+        return f"intent-> {self.intent}\n attributes-> {self.attributes}\n itmes-> {self.items} \n uttr-> {self.uttr}"

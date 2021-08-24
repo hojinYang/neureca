@@ -105,7 +105,7 @@ class UserBased(BaseDataModule):
 
     @staticmethod
     def add_to_argparse(parser):
-        BaseDataModule.add_to_argparse(parser)
+        parser = BaseDataModule.add_to_argparse(parser)
         parser.add_argument("--rating_data", type=str, default=RATING_DATA)
         parser.add_argument("--user_id_dict", type=str, default=USER_ID_DICT)
         parser.add_argument("--item_id_dict", type=str, default=ITEM_ID_DICT)

@@ -17,14 +17,6 @@ class ExplicitRatingWrapper(BaseLitWrapper):
         self.optimizer_class = getattr(torch.optim, optimizer)
         self.lr = self.args.get("lr", LR)
 
-    def get_similar_embedding(self, index):
-        item_matrix = self.model.dec.weight.numpy()
-        print(item_matrix.shape)
-        x = item_matrix[index].reshape(1, -1)
-        print(x.shape)
-        cosine_sim = cosine_similarity(x, item_matrix)
-        return np.argsort(-cosine_sim)
-
     def forward(self, x):
         return self.model(x)
 
@@ -58,6 +50,12 @@ class ExplicitRatingWrapper(BaseLitWrapper):
 
     def get_main_validation_metric(self):
         return {"name": "val_loss", "mode": "min"}
+
+    def get_similar_embedding(self, index):
+        item_matrix = self.model.dec.weight.numpy()
+        x = item_matrix[index].reshape(1, -1)
+        cosine_sim = cosine_similarity(x, item_matrix)
+        return np.argsort(-cosine_sim)
 
     @staticmethod
     def add_to_argparse(parser):

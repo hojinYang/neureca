@@ -2,106 +2,86 @@ from pathlib import Path
 import pickle
 import pandas as pd
 from summarizers import Summarizers
-from neureca.explainer.utils.parse_attribute import create_db
-
-REVIEW_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "ratings.csv"
-ATTRIBUTE_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "data" / "attribute.yaml"
-ATTRIBUTE_PICKLE_PATH = (
-    Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "attributes.pkl"
-)
-DB_PATH = Path(__file__).resolve().parents[2] / "demo-toronto" / "preprocessed" / "db.csv"
+from neureca.explainer.utils.parse_attribute import save_db_and_attr_list
 
 
 class Explainer:
     def __init__(self):
-        if not DB_PATH.exists():
-            attributes = create_db(REVIEW_PATH, ATTRIBUTE_PATH, DB_PATH)
-            with open(str(ATTRIBUTE_PICKLE_PATH), "wb") as f:
-                pickle.dump(attributes, f)
+        return
 
-        with open(str(ATTRIBUTE_PICKLE_PATH), "rb") as f:
+    def set(self, path: Path):
+        review_path = path / "data" / "ratings.csv"
+        attribute_path = path / "data" / "attribute.yaml"
+        attribute_pickle_path = path / "preprocessed" / "exp-attribute.pkl"
+        db_path = path / "preprocessed" / "db.csv"
+
+        if not db_path.exists():
+            save_db_and_attr_list(review_path, attribute_path, db_path, attribute_pickle_path)
+
+        with open(str(attribute_pickle_path), "rb") as f:
             self.attributes = pickle.load(f)
 
-        self.df = pd.read_csv(DB_PATH)
+        self.df = pd.read_csv(db_path)
         self.summ = Summarizers()
 
-    def convert_syn_to_attr(self, syn):
-        for a in self.attributes:
-            if a.check(syn):
-                return a.name
+    def convert_syn_to_attr(self, syn_lst):
+        # FIXME revise this
 
-    def _item_attr_analysis(self, item, attribute_list):
-        if not isinstance(attribute_list, list):
-            attribute_list = [attribute_list]
+        if not isinstance(syn_lst, list):
+            syn_lst = [syn_lst]
 
-        df_item = self.df[self.df.item == item]
-        print(df_item)
-        sent_output = dict()
-
-        for attr in attribute_list:
-            df_item_attr = df_item[df_item.attr == attr]
-            if len(df_item_attr) == 0:
-                sent_output[attr] = None
-            else:
-                sent_output[attr] = df_item_attr["sentiment"].mean()
-        return sent_output
+        ret = list()
+        for syn in syn_lst:
+            for attr in self.attributes:
+                if attr.check(syn):
+                    ret.append(attr.name)
+        return ret
 
     def explain_recommendation(self, attribute_list, item_list, topK=1):
+        attribute_list = self.convert_syn_to_attr(attribute_list)
 
-        output = dict()
         for item in item_list:
-            attr_sentiments = self._item_attr_analysis(item, attribute_list)
-            print(list(attr_sentiments.values()))
+            flag = True
+            for attr in attribute_list:
+                if not self._does_item_has_attribute(item, attr):
+                    flag = False
+                    break
 
-            if None not in attr_sentiments.values():
-                answers = self.answer_question(attribute_list, item)
-                exp = []
-                for k, v in answers.items():
-                    exp.append(v["answer"])
+            if flag:
+                answers = list()
+                for attr in attribute_list:
+                    df_item_attr = self.df[self.df.item == item][self.df.attr == attr]
+                    review_lines = df_item_attr["review_line"].values
+                    answer = " ".join(review_lines)
+                    answers.append(self.summ(answer, query=attr))
 
-                exp = " ".join(exp)
-                print(exp)
+                answer = " ".join(answers)
                 query = ", ".join(attribute_list)
-                exp = [self.summ(exp, query=query)]
+                exp = self.summ(answer, query=query)
 
-                return {"rec": item, "exp": exp}
+                return item, exp
 
-            #    # exp = self._summarize(item, attribute_list)
-            #    output[item] = exp
+        return item_list[0], None
 
-            if len(output) == topK:
-                break
+    def answer_question(self, attribute_list, item=None):
 
-        return output
+        attribute_list = self.convert_syn_to_attr(attribute_list)
+        answers = list()
 
-    def answer_question(self, attribute_list, item):
-        answer_output = dict()
-
-        attr_sent_dict = self._item_attr_analysis(item, attribute_list)
-        print(attr_sent_dict)
-
-        for attr in attr_sent_dict:
-            answer_output[attr] = {"sentiment": None, "answer": None}
-
-            if attr_sent_dict[attr] is not None:
-                df_item_attr = self.df[self.df.item == item][self.df.attr == attr]
+        for attr in attribute_list:
+            df_item_attr = self.df[self.df.item == item][self.df.attr == attr]
+            if len(df_item_attr) == 0:
+                continue
+            else:
                 review_lines = df_item_attr["review_line"].values
-                print(review_lines)
-
                 answer = " ".join(review_lines)
                 answer = self.summ(answer, query=attr)
-                answer_output[attr]["sentiment"] = attr_sent_dict[attr]
-                answer_output[attr]["answer"] = answer
+                answers.append(answer)
 
-        return answer_output
+        is_success = len(answers) != 0
+        answer_output = " ".join(answers)
 
+        return answer_output, is_success
 
-if __name__ == "__main__":
-    a = Explainer()
-    z = a.explain_recommendation(
-        item_list=["y0QzKWNVoXCbZpk6uhEgGA"],
-        attribute_list=["italian", "date", "parking"],
-    )
-    print(z)
-    print(a.convert_syn_to_attr("atmosphere"))
-    print(a.convert_syn_to_attr("uber"))
+    def _does_item_has_attribute(self, item, attr):
+        return len(self.df[self.df.item == item][self.df.attr == attr]) > 0

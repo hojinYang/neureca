@@ -1,12 +1,12 @@
 """
 Parse attributes
 """
+import pickle
 from pathlib import Path
-from typing import Dict, List, Union, Sequence
+from typing import Dict, List, Union
 import re
 import pandas as pd
 import yaml
-import pandas as pd
 from tqdm import tqdm
 from transformers import pipeline
 from spacy.lang.en import English
@@ -47,9 +47,6 @@ class AttributeParser:
 
         self.nlp.add_pipe("sentencizer")
 
-    def get_attr_list(self):
-        return self.attributes
-
     def generate_attribute(self, attribute_path: Path) -> None:
         with open(attribute_path) as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
@@ -57,6 +54,9 @@ class AttributeParser:
 
         while len(st) > 0:
             attr = st.pop()
+            if attr.get("is_item") is True:
+                continue
+
             if "sub-attr" in attr.keys():
                 for s in attr["sub-attr"]:
                     st.append(s)
@@ -122,17 +122,13 @@ class AttributeParser:
             for key in review_dict:
                 review_dict[key] += _review_dict[key]
 
-        # for review_text_path in tqdm(review_path.glob("*.txt")):
-        #    _review_dict = self._read_single_review(review_text_path)
-        #    for key in review_dict:
-        #        review_dict[key] += _review_dict[key]
-
         return pd.DataFrame(review_dict)
 
 
-def create_db(review_path, attribute_path, db_path):
+def save_db_and_attr_list(review_path, attribute_path, db_path, attribute_save_path):
     ap = AttributeParser()
     ap.generate_attribute(attribute_path)
-    # db = ap.build_dataset(review_path)
-    # db.to_csv(str(db_path), index=False)
-    return ap.get_attr_list()
+    db = ap.build_dataset(review_path)
+    db.to_csv(str(db_path), index=False)
+    with open(str(attribute_save_path), "wb") as f:
+        pickle.dump(ap.attributes, f)

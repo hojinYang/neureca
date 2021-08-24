@@ -50,7 +50,7 @@ def main():
     Run an experiment
     sample command
     '''
-    python neureca/recommender/trainer.py  --data_class UserBased --model_class AutoRec --lit_wrapper_class ExplicitRatingWrapper --demo_path demo-toronto
+    python neureca/recommender/trainer.py  --data_class UserBased --model_class AutoRec --lit_wrapper_class ExplicitRatingWrapper --path /home/hojin/code/neureca/demo-toronto
 
     """
 
@@ -79,7 +79,7 @@ def main():
         mode=val_metric["mode"],
     )
     callbacks = [early_stopping_callback, model_checkpoint_callback]
-    log_path = Path(args.demo_path) / "weights"
+    log_path = Path(args.path) / "weights"
     logger = pl.loggers.TensorBoardLogger(log_path, name=str(args.data_class))
 
     args.weights_summary = "full"  # Print full summary of the model

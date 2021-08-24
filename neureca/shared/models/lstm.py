@@ -28,7 +28,6 @@ class LSTM(BaseModel):
         # x -> (B, S, E)
         B, S, _E = x.shape
         x = x.permute(1, 0, 2)  # -> (S, B, E)
-
         x, _ = self.lstm(x)  # -> (S, B, 2 * H) where H is lstm_dim
 
         # Sum up both directions of the LSTM:
